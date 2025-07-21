@@ -17,38 +17,7 @@ var dotfilesCmd = &cobra.Command{
 		"IsWindowsOnly": "true",
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) > 0 {
-			fmt.Println("Unknown command:", args[0])
-			fmt.Println("Use 'utils dotfiles --help' for more information.")
-			return
-		}
-
-		if len(args) == 0 {
-			cmd.Help()
-		}
-
-		if args[0] == "sync" {
-			if err := dotfiles.SyncConfigFiles(); err != nil {
-				fmt.Printf("Error syncing config files: %v\n", err)
-				return
-			}
-			fmt.Println("✓ Config files synced successfully!")
-			return
-		}
-		if args[0] == "status" {
-			if err := dotfiles.ShowStatus(); err != nil {
-				fmt.Printf("Error showing status: %v\n", err)
-			}
-			return
-		}
-		if args[0] == "pull" {
-			if err := dotfiles.PullLatestDotfiles(); err != nil {
-				fmt.Printf("Error pulling dotfiles: %v\n", err)
-				return
-			}
-			fmt.Println("✓ Pulled latest dotfiles successfully!")
-			return
-		}
+		_ = cmd.Help()
 	},
 }
 
@@ -85,6 +54,7 @@ var pullCmd = &cobra.Command{
 			fmt.Printf("Error pulling dotfiles: %v\n", err)
 			return
 		}
+		fmt.Println("✓ Pulled latest dotfiles successfully!")
 	},
 }
 
