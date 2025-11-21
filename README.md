@@ -67,6 +67,13 @@ For trying out changes to the SvelteKit frontend without rebuilding the Go binar
    ```bash
    go run ./cmd/core serve
    ```
+   Or just:
+   
+   ```bash
+   core serve
+   ```
+   If i have already installed the binary using `go install`.
+
    *Note: The API runs on port 8080.*
 
 2. In a separate terminal, start the SvelteKit dev server:
