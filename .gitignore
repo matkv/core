@@ -1,0 +1,22 @@
+# Binaries
+bin/
+core
+
+# Go
+go.work
+
+# Node / SvelteKit
+web/node_modules/
+web/.svelte-kit/
+web/build/
+web/.env
+web/.env.*
+!web/.env.example
+
+# Embedded UI
+internal/ui/build/
+
+# OS / Editor
+.DS_Store
+.vscode/
+.idea/
