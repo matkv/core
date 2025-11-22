@@ -49,6 +49,22 @@ core/
 - Go 1.21+
 - Node.js & npm
 
+### Installation
+
+To install the `core` binary globally so you can run it from anywhere:
+
+```bash
+go install ./cmd/core
+```
+
+This will install the binary to your `$GOPATH/bin` (usually `~/go/bin`). Make sure this directory is in your `PATH`.
+
+After installation, you can run commands like:
+```bash
+core version
+core serve
+```
+
 ### Running the Application
 
 #### 1. Production Mode (Integrated)
@@ -63,16 +79,15 @@ The server will start at `http://localhost:8080`.
 
 For trying out changes to the SvelteKit frontend without rebuilding the Go binary each time, run the Go API server and SvelteKit dev server separately:
 
-1. Start the Go API server (if needed):
+1. Start the Go API server:
    ```bash
    go run ./cmd/core serve
    ```
-   Or just:
    
+   Or if you've installed the binary:
    ```bash
    core serve
    ```
-   If i have already installed the binary using `go install`.
 
    *Note: The API runs on port 8080.*
 
