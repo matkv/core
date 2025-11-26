@@ -3,3 +3,4 @@ export { default as DashboardLayout } from './components/DashboardLayout.svelte'
 export { default as Header } from './components/Header.svelte';
 export { default as Sidebar } from './components/Sidebar.svelte';
 export { default as Card } from './components/Card.svelte';
+export { default as RandomCard } from './components/RandomCard.svelte';

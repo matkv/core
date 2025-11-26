@@ -1,9 +1,11 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
+	"github.com/matkv/core/internal/random"
 	"github.com/matkv/core/internal/ui"
 )
 
@@ -13,6 +15,12 @@ func Start(port int) error {
 	// 1. API Routes
 	mux.HandleFunc("/api/hello", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello from Go Core!"))
+	})
+
+	mux.HandleFunc("/api/random", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		value := random.Int(1000)
+		_ = json.NewEncoder(w).Encode(map[string]int{"value": value})
 	})
 
 	// 2. Serve SvelteKit Frontend
