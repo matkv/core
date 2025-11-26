@@ -11,37 +11,6 @@
 
 Re-writing this whole project. The general idea is to have a CLI tool like before, but this time with an additional command that starts web server that runs a little web UI for which I'll probably use SvelteKit.
 
-## Project Structure
-
-```text
-core/
-├── bin/                   // Compiled binaries
-├── cmd/
-│   └── core/
-│       └── main.go        // Very thin entry point, just calls cli.Execute()
-│
-├── internal/
-│   ├── cli/               // Cobra command definitions
-│   │   ├── root.go        // Root command setup
-│   │   ├── serve.go       // "serve" command logic
-│   │   └── version.go     // "version" command logic
-│   │
-│   ├── server/            // HTTP Server logic
-│   │   ├── server.go      // Server struct and startup
-│   │
-│   └── ui/                // Handles the embedded frontend
-│       └── embed.go       // //go:embed web/build
-│
-├── web/                   // SvelteKit project
-│   ├── src/
-│   ├── build/             // The output directory (embedded by Go)
-│   └── package.json
-│
-├── Makefile               // Critical: runs `npm build` inside web/ before `go build`
-├── go.mod
-└── go.sum
-```
-
 ## Getting Started
 
 ### Prerequisites
@@ -67,7 +36,7 @@ core serve
 
 ### Running the Application
 
-#### 1. Production Mode (Integrated)
+#### 1. Production
 To build the SvelteKit app, embed it into the Go binary, and run the server:
 
 ```bash
@@ -77,23 +46,6 @@ The server will start at `http://localhost:8080`.
 
 #### 2. Development Mode
 
-For trying out changes to the SvelteKit frontend without rebuilding the Go binary each time, run the Go API server and SvelteKit dev server separately:
+In VSCode, pick: **Dev: Go + Svelte (full debug)** in the launch configurations.
 
-1. Start the Go API server:
-   ```bash
-   go run ./cmd/core serve
-   ```
-   
-   Or if you've installed the binary:
-   ```bash
-   core serve
-   ```
-
-   *Note: The API runs on port 8080.*
-
-2. In a separate terminal, start the SvelteKit dev server:
-   ```bash
-   cd web
-   npm run dev
-   ```
-   *Note: The UI runs on http://localhost:5173.*
+A separate firefox window will open (takes a while to load, press refresh) with debugging enabled for the Go backend and Svelte frontend.

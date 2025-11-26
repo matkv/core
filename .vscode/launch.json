@@ -38,6 +38,19 @@
             "request": "launch",
             "command": "cd web && npm run dev",
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Svelte: Debug in Firefox",
+            "type": "firefox",
+            "request": "launch",
+            "url": "http://localhost:4173",
+            "webRoot": "${workspaceFolder}/web/src",
+            "pathMappings": [
+                {
+                    "url": "http://localhost:4173/src",
+                    "path": "${workspaceFolder}/web/src"
+                },
+            ]
         }
     ],
     "compounds": [
@@ -46,6 +59,14 @@
             "configurations": [
                 "Go: debug core serve",
                 "Frontend: npm run dev"
+            ]
+        },
+        {
+            "name": "Dev: Go + Svelte (full debug)",
+            "configurations": [
+                "Go: debug core serve",
+                "Frontend: npm run dev",
+                "Svelte: Debug in Firefox"
             ]
         }
     ]
