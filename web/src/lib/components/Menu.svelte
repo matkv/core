@@ -1,24 +1,26 @@
-<script context="module" lang="ts">
-	export type MenuItem = { label: string; path: string };
-</script>
-
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { menuItems as defaultItems } from '$lib/menu';
 
+	type MenuItem = { label: string; path: string };
+
 	export let items: MenuItem[] = defaultItems;
-	export let exact = false;
 
-	$: currentPath = $page.url.pathname;
-
-	function isActive(path: string) {
-		if (exact) return currentPath === path;
-		return currentPath === path || (path !== '/' && currentPath.startsWith(path + '/'));
+	function normalize(p: string) {
+		if (p.length > 1 && p.endsWith('/')) return p.slice(0, -1);
+		return p;
 	}
 
-	const base = 'block rounded-md px-3 py-2 text-sm font-medium transition-colors';
-	const active = 'bg-white/10 text-white';
-	const inactive = 'text-gray-300 hover:bg-white/5 hover:text-white';
+	function isActive(currentPath: string, path: string) {
+		const cur = normalize(currentPath);
+		const target = normalize(path);
+		if (target === '/') return cur === '/';
+		return cur === target || cur.startsWith(target + '/');
+	}
+
+	const base = 'block rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150';
+	const active = 'bg-neutral-800 text-neutral-100';
+	const inactive = 'text-neutral-300 hover:bg-neutral-900 hover:text-neutral-100';
 </script>
 
 <nav aria-label="Main navigation">
@@ -27,8 +29,8 @@
 			<li>
 				<a
 					href={item.path}
-					class={`${base} ${isActive(item.path) ? active : inactive}`}
-					aria-current={isActive(item.path) ? 'page' : undefined}
+					class={`${base} ${isActive($page.url.pathname, item.path) ? active : inactive}`}
+					aria-current={isActive($page.url.pathname, item.path) ? 'page' : undefined}
 					data-sveltekit-preload-data
 				>
 					{item.label}
