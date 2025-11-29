@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/matkv/core/internal/config"
 	"github.com/spf13/cobra"
 )
@@ -8,8 +10,11 @@ import (
 var rootCmd = &cobra.Command{
 	Use:               "core",
 	Short:             "Core CLI tools & SvelteKit web app",
-	PersistentPreRunE: setupConfig(),                                                       // set up configuration before any command runs
-	RunE:              func(cmd *cobra.Command, args []string) error { return cmd.Help() }, // show help if no subcommand is provided
+	PersistentPreRunE: setupConfig(), // set up configuration before any command runs
+	RunE: func(cmd *cobra.Command, args []string) error { // show help if no subcommand is provided
+		fmt.Printf("Obsidian vault: %s\n", config.C.Paths.ObsidianVault) // example usage of loaded config
+		return cmd.Help()
+	},
 }
 
 func Execute() {
