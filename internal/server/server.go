@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/matkv/core/internal/config"
 	"github.com/matkv/core/internal/random"
 	"github.com/matkv/core/internal/ui"
 )
@@ -21,6 +22,12 @@ func Start(port int) error {
 		w.Header().Set("Content-Type", "application/json")
 		value := random.Int(1000)
 		_ = json.NewEncoder(w).Encode(map[string]int{"value": value})
+	})
+
+	// Settings: expose current configuration
+	mux.HandleFunc("/api/settings", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(config.C)
 	})
 
 	// 2. Serve SvelteKit Frontend
