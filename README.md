@@ -46,6 +46,11 @@ The server will start at `http://localhost:8080`.
 
 #### 2. Development Mode
 
-In VSCode, pick: **Dev: Go + Svelte (full debug)** in the launch configurations.
+In VS Code, pick: **Dev: Go + Svelte (full debug)** in the Run and Debug panel.
 
-A separate firefox window will open (takes a while to load, press refresh) with debugging enabled for the Go backend and Svelte frontend.
+This starts the Go API and the Svelte dev server, and opens a Chrome window with debugging enabled. Breakpoints work across routes (including `settings/+page.svelte`).
+
+## Debugging (VS Code)
+
+- **Dev: Go + Svelte (full debug):** Runs the Go server and Svelte dev server, opens Chrome with debugger attached. Use this to debug both backend and frontend together.
+- **Debug Core CLI:** Runs the standalone CLI `cmd/core/main.go` under the debugger. Use this to debug the actual CLI commands.

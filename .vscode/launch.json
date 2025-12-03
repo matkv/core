@@ -5,13 +5,29 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run Core CLI (root)",
+            "name": "Debug Core CLI",
             "type": "go",
             "request": "launch",
-            "mode": "auto",
+            "mode": "debug",
             "program": "${workspaceFolder}/cmd/core/main.go",
             "cwd": "${workspaceFolder}",
             "args": []
+        },
+        {
+            "name": "Svelte: Debug in Chrome",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:4173",
+            "webRoot": "${workspaceFolder}/web",
+            "sourceMapPathOverrides": {
+                "/@fs/*": "/*",
+                "vite:///*": "${workspaceFolder}/web/*",
+                "webpack:///*": "${workspaceFolder}/web/*",
+                "*/src/*": "${workspaceFolder}/web/src/*",
+                "*/node_modules/*": "${workspaceFolder}/web/node_modules/*",
+                "/*": "${workspaceFolder}/web/*"
+            },
+            "presentation": { "hidden": true }
         },
         {
             "name": "Go: debug core serve",
@@ -19,56 +35,33 @@
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}/cmd/core",
-            "args": ["serve"],
+            "args": [
+                "serve"
+            ],
             "cwd": "${workspaceFolder}",
-            "env": { "GO111MODULE": "on" }
-        },
-        {
-            "name": "Go: run core serve (no debug)",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/core",
-            "args": ["serve"],
-            "cwd": "${workspaceFolder}",
-            "env": { "GO111MODULE": "on" }
+            "env": {
+                "GO111MODULE": "on"
+            },
+            "presentation": { "hidden": true }
         },
         {
             "name": "Frontend: npm run dev",
             "type": "node-terminal",
             "request": "launch",
             "command": "cd web && npm run dev",
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}",
+            "presentation": { "hidden": true }
         },
-        {
-            "name": "Svelte: Debug in Firefox",
-            "type": "firefox",
-            "request": "launch",
-            "url": "http://localhost:4173",
-            "webRoot": "${workspaceFolder}/web/src",
-            "pathMappings": [
-                {
-                    "url": "http://localhost:4173/src",
-                    "path": "${workspaceFolder}/web/src"
-                }
-            ]
-        }
     ],
     "compounds": [
-        {
-            "name": "Dev: Go API + Svelte dev",
-            "configurations": [
-                "Go: debug core serve",
-                "Frontend: npm run dev"
-            ]
-        },
         {
             "name": "Dev: Go + Svelte (full debug)",
             "configurations": [
                 "Go: debug core serve",
                 "Frontend: npm run dev",
-                "Svelte: Debug in Firefox"
-            ]
+                "Svelte: Debug in Chrome"
+            ],
+            "presentation": { "hidden": false }
         }
     ]
 }
