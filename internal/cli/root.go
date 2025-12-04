@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/matkv/core/internal/config"
 	"github.com/spf13/cobra"
@@ -65,12 +66,7 @@ func addCommand(command *cobra.Command, devices ...config.Device) {
 }
 
 func isDeviceAllowed(currentDevice config.Device, allowedDevices []config.Device) bool {
-	for _, d := range allowedDevices {
-		if currentDevice == d {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(allowedDevices, currentDevice)
 }
 
 func Execute() {
