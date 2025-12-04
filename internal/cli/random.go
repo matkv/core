@@ -13,7 +13,3 @@ var randomCmd = &cobra.Command{
 		cmd.Printf("%d\n", value)
 	},
 }
-
-func init() {
-	rootCmd.AddCommand(randomCmd)
-}

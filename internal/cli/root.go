@@ -7,12 +7,26 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var rootCmd = &cobra.Command{
-	Use:               "core",
-	Short:             "Core CLI tools & SvelteKit web app",
-	PersistentPreRunE: setupConfig(), // set up configuration before any command runs
-	RunE: func(cmd *cobra.Command, args []string) error { // show help if no subcommand is provided
+type cliCommand struct {
+	cmd            *cobra.Command
+	allowedDevices []config.Device
+}
 
+var commands []cliCommand
+
+var rootCmd = &cobra.Command{
+	Use:   "core",
+	Short: "Core CLI tools & SvelteKit web app",
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		if _, err := config.EnsureConfigFileExists(); err != nil {
+			return err
+		}
+		if err := config.Load(); err != nil {
+			return err
+		}
+		return nil
+	},
+	RunE: func(cmd *cobra.Command, args []string) error { // show help if no subcommand is provided
 		// example usage of loaded config
 		fmt.Printf("Obsidian vault: %s\n", config.C.Paths.ObsidianVault)
 		fmt.Printf("Device type: %s\n", config.C.Device)
@@ -20,21 +34,44 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		panic(err)
+func setupCommands() {
+	currentDevice := config.C.Device
+
+	for _, c := range commands {
+		if isDeviceAllowed(currentDevice, c.allowedDevices) {
+			rootCmd.AddCommand(c.cmd)
+		} else {
+			c.cmd.Hidden = true
+		}
 	}
 }
 
 func init() {
-	rootCmd.AddCommand(serveCmd)
+	addCommand(versionCmd, config.Desktop, config.Laptop, config.WSL)
+	addCommand(randomCmd, config.Desktop, config.Laptop)
+	addCommand(serveCmd, config.Desktop, config.Laptop, config.WSL)
 }
 
-func setupConfig() cobra.PositionalArgs {
-	return func(cmd *cobra.Command, args []string) error {
-		if _, err := config.EnsureConfigFileExists(); err != nil {
-			return err
+func addCommand(command *cobra.Command, devices ...config.Device) {
+	commands = append(commands, cliCommand{cmd: command, allowedDevices: devices})
+}
+
+func isDeviceAllowed(currentDevice config.Device, allowedDevices []config.Device) bool {
+	for _, d := range allowedDevices {
+		if currentDevice == d {
+			return true
 		}
-		return config.Load()
+	}
+	return false
+}
+
+func Execute() {
+	if _, err := config.EnsureConfigFileExists(); err == nil {
+		if err := config.Load(); err == nil {
+			setupCommands()
+		}
+	}
+	if err := rootCmd.Execute(); err != nil {
+		panic(err)
 	}
 }
