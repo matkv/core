@@ -12,7 +12,10 @@ type cliCommand struct {
 	allowedDevices []config.Device
 }
 
-var commands []cliCommand
+var (
+	commands           []cliCommand
+	commandsRegistered bool
+)
 
 var rootCmd = &cobra.Command{
 	Use:   "core",
@@ -32,17 +35,21 @@ func setupConfig() error {
 	if err := config.Load(); err != nil {
 		return err
 	}
+	if !config.C.Device.IsValidDevice() {
+		return fmt.Errorf("invalid device %q in config", config.C.Device)
+	}
 	return nil
 }
 
 func setupCommands() {
+	if commandsRegistered {
+		return
+	}
+	commandsRegistered = true
 	currentDevice := config.C.Device
-
 	for _, c := range commands {
 		if isDeviceAllowed(currentDevice, c.allowedDevices) {
 			rootCmd.AddCommand(c.cmd)
-		} else {
-			c.cmd.Hidden = true
 		}
 	}
 }
