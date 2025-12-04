@@ -12,7 +12,10 @@ var rootCmd = &cobra.Command{
 	Short:             "Core CLI tools & SvelteKit web app",
 	PersistentPreRunE: setupConfig(), // set up configuration before any command runs
 	RunE: func(cmd *cobra.Command, args []string) error { // show help if no subcommand is provided
-		fmt.Printf("Obsidian vault: %s\n", config.C.Paths.ObsidianVault) // example usage of loaded config
+
+		// example usage of loaded config
+		fmt.Printf("Obsidian vault: %s\n", config.C.Paths.ObsidianVault)
+		fmt.Printf("Device type: %s\n", config.C.Device)
 		return cmd.Help()
 	},
 }

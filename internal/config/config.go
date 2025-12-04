@@ -15,6 +15,7 @@ type Config struct {
 	Paths struct {
 		ObsidianVault string `mapstructure:"obsidianvault"`
 	} `mapstructure:"paths"`
+	Device Device `mapstructure:"device"`
 }
 
 var C Config
@@ -66,12 +67,14 @@ func generateDefaultConfig() Config {
 	var defaultConfig Config
 	homeDir, _ := os.UserHomeDir()
 	defaultConfig.Paths.ObsidianVault = filepath.Join(homeDir, "documents", "Obsidian Vault")
+	defaultConfig.Device = Desktop
 	return defaultConfig
 }
 
 func writeConfigToFile(config Config, path string) error {
 	v := viper.New()
 	v.Set("paths.obsidianvault", config.Paths.ObsidianVault)
+	v.Set("device", config.Device)
 
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		return fmt.Errorf("%w: mkdir: %v", ErrConfigWriteFailed, err)
@@ -96,6 +99,7 @@ func Load() error {
 
 	defautConfig := generateDefaultConfig()
 	v.SetDefault("paths.obsidianvault", defautConfig.Paths.ObsidianVault)
+	v.SetDefault("device", defautConfig.Device)
 
 	// overwrite with actual values from file
 	if err := v.ReadInConfig(); err != nil {
