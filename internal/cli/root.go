@@ -17,21 +17,22 @@ var commands []cliCommand
 var rootCmd = &cobra.Command{
 	Use:   "core",
 	Short: "Core CLI tools & SvelteKit web app",
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		if _, err := config.EnsureConfigFileExists(); err != nil {
-			return err
-		}
-		if err := config.Load(); err != nil {
-			return err
-		}
-		return nil
-	},
 	RunE: func(cmd *cobra.Command, args []string) error { // show help if no subcommand is provided
 		// example usage of loaded config
 		fmt.Printf("Obsidian vault: %s\n", config.C.Paths.ObsidianVault)
 		fmt.Printf("Device type: %s\n", config.C.Device)
 		return cmd.Help()
 	},
+}
+
+func setupConfig() error {
+	if _, err := config.EnsureConfigFileExists(); err != nil {
+		return err
+	}
+	if err := config.Load(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func setupCommands() {
@@ -66,11 +67,12 @@ func isDeviceAllowed(currentDevice config.Device, allowedDevices []config.Device
 }
 
 func Execute() {
-	if _, err := config.EnsureConfigFileExists(); err == nil {
-		if err := config.Load(); err == nil {
-			setupCommands()
-		}
+	if err := setupConfig(); err != nil {
+		panic(err)
 	}
+
+	setupCommands()
+
 	if err := rootCmd.Execute(); err != nil {
 		panic(err)
 	}
