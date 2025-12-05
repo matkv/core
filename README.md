@@ -11,6 +11,8 @@
 
 Re-writing this whole project. The general idea is to have a CLI tool like before, but this time with an additional command that starts web server that runs a little web UI for which I'll probably use SvelteKit.
 
+![Screenshot Web UI](./docs/screenshots/screenshot-main.png)
+
 ## Getting Started
 
 ### Prerequisites
