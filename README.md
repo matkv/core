@@ -34,6 +34,7 @@ Install the `core` binary globally so you can run it from anywhere:
 ```bash
 go install github.com/matkv/core@latest
 ```
+Here the assets for the web UI are embedded into the Go binary using `embed.FS`. So when you run `core serve`, it serves the embedded SvelteKit app.
 
 This installs the binary to `$GOPATH/bin` (usually `~/go/bin`). Ensure this directory is in your `PATH`.
 
