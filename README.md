@@ -20,6 +20,13 @@ Re-writing this whole project. The general idea is to have a CLI tool like befor
 
 ### Installation
 
+If I want some changes in the web app to also be included in the binary, first build the SvelteKit app & commit the changes from the build directory:
+
+```bash
+make build-web
+git add internal/ui/build
+```
+
 Install the `core` binary globally so you can run it from anywhere:
 
 ```bash
