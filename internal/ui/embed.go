@@ -5,7 +5,7 @@ import (
 	"io/fs"
 )
 
-//go:embed all:build
+//go:embed build/* build/_app/**
 var buildFS embed.FS
 
 // GetDistFS returns the filesystem for the static web assets

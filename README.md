@@ -20,15 +20,15 @@ Re-writing this whole project. The general idea is to have a CLI tool like befor
 
 ### Installation
 
-To install the `core` binary globally so you can run it from anywhere:
+Install the `core` binary globally so you can run it from anywhere:
 
 ```bash
-go install ./cmd/core
+go install github.com/matkv/core@latest
 ```
 
-This will install the binary to your `$GOPATH/bin` (usually `~/go/bin`). Make sure this directory is in your `PATH`.
+This installs the binary to `$GOPATH/bin` (usually `~/go/bin`). Ensure this directory is in your `PATH`.
 
-After installation, you can run commands like:
+Then run commands like:
 ```bash
 core version
 core serve

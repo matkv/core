@@ -14,7 +14,7 @@ build-web:
 # 2. Build Go Binary
 build-go:
 	@echo "Building Go Binary..."
-	go build -o bin/core ./cmd/core
+	go build -o bin/core .
 
 # 3. Run the full app
 run: build-web build-go

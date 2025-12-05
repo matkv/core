@@ -13,8 +13,7 @@ web/.env
 web/.env.*
 !web/.env.example
 
-# Embedded UI
-internal/ui/build/
+# Embedded UI (commit build assets)
 
 # OS / Editor
 .DS_Store
