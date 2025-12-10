@@ -88,7 +88,7 @@ func writeConfigToFile(config Config, path string) error {
 }
 
 func Load() error {
-	configPath, err := ConfigPath()
+	configPath, err := EnsureConfigFileExists()
 	if err != nil {
 		return err
 	}

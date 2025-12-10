@@ -30,9 +30,6 @@ var rootCmd = &cobra.Command{
 }
 
 func setupConfig() error {
-	if _, err := config.EnsureConfigFileExists(); err != nil {
-		return err
-	}
 	if err := config.Load(); err != nil {
 		return err
 	}
