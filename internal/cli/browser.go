@@ -13,6 +13,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var browserFileFlag bool
+
 var browserCmd = &cobra.Command{
 	Use:   "browser",
 	Short: "Open multiple predefined URLs in the default web browser",
@@ -20,8 +22,22 @@ var browserCmd = &cobra.Command{
 		if len(args) == 0 {
 			return openPredefinedURLsInBrowser()
 		}
+
+		if browserFileFlag {
+			return openURLsFromFiles(args)
+		}
+
 		return openURLS(args)
 	},
+}
+
+func init() {
+	browserCmd.Flags().BoolVarP(
+		&browserFileFlag,
+		"file",
+		"f",
+		false,
+		"treat arguments as files containing URLs")
 }
 
 func openPredefinedURLsInBrowser() error {
@@ -78,6 +94,28 @@ func openURLS(urls []string) error {
 		}
 	}
 	return nil
+}
+
+func openURLsFromFiles(files []string) error {
+	var allURLs []string
+
+	for _, filePath := range files {
+		file, err := os.Open(filePath)
+		if err != nil {
+			return fmt.Errorf("failed to open file %s: %v", filePath, err)
+		}
+
+		urls := readLinksFromFile(file)
+		file.Close()
+
+		allURLs = append(allURLs, urls...)
+	}
+
+	if len(allURLs) == 0 {
+		return fmt.Errorf("no URLs found in provided files")
+	}
+
+	return openURLS(allURLs)
 }
 
 func OpenURL(url string) error {
