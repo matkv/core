@@ -30,9 +30,6 @@ var rootCmd = &cobra.Command{
 }
 
 func setupConfig() error {
-	if _, err := config.EnsureConfigFileExists(); err != nil {
-		return err
-	}
 	if err := config.Load(); err != nil {
 		return err
 	}
@@ -59,6 +56,7 @@ func init() {
 	addCommand(versionCmd, config.Desktop, config.Laptop, config.WSL)
 	addCommand(randomCmd, config.Desktop, config.Laptop)
 	addCommand(serveCmd, config.Desktop, config.Laptop, config.WSL)
+	addCommand(browserCmd, config.Desktop, config.Laptop)
 }
 
 func addCommand(command *cobra.Command, devices ...config.Device) {
