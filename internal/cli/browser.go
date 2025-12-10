@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/matkv/core/internal/config"
-	"github.com/pkg/browser"
 	"github.com/spf13/cobra"
 )
 
@@ -19,12 +20,8 @@ var browserCmd = &cobra.Command{
 		if len(args) == 0 {
 			return openPredefinedURLsInBrowser()
 		}
-		return openURLInBrowser(args)
+		return openURLS(args)
 	},
-}
-
-func openURLInBrowser(urls []string) error {
-	return openURLS(urls)
 }
 
 func openPredefinedURLsInBrowser() error {
@@ -73,7 +70,7 @@ func readLinksFromFile(file *os.File) []string {
 
 func openURLS(urls []string) error {
 	for _, url := range urls {
-		err := browser.OpenURL(url)
+		err := OpenURL(url)
 		if err != nil {
 			fmt.Printf("Failed to open URL %s: %v\n", url, err)
 		} else {
@@ -81,4 +78,25 @@ func openURLS(urls []string) error {
 		}
 	}
 	return nil
+}
+
+func OpenURL(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "linux":
+		cmd = "xdg-open"
+		args = []string{url}
+	case "windows":
+		cmd = "rundll32"
+		args = []string{"url.dll,FileProtocolHandler", url}
+	case "darwin":
+		cmd = "open"
+		args = []string{url}
+	default:
+		return nil
+	}
+
+	return exec.Command(cmd, args...).Start()
 }
