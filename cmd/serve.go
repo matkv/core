@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/matkv/core/internal/config"
 	"github.com/matkv/core/internal/server"
 	"github.com/spf13/cobra"
 )
@@ -24,9 +25,11 @@ var serveCmd = &cobra.Command{
 		}()
 
 		// open browser to the server URL
-		url := fmt.Sprintf("http://localhost:%d", port)
-		if err := OpenURL(url); err != nil {
-			fmt.Fprintf(os.Stderr, "failed to open browser: %v\n", err)
+		if config.C.Device != config.WSL {
+			url := fmt.Sprintf("http://localhost:%d", port)
+			if err := OpenURL(url); err != nil {
+				fmt.Fprintf(os.Stderr, "failed to open browser: %v\n", err)
+			}
 		}
 
 		// wait for user interrupt to shut down (Ctrl+C)
