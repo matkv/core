@@ -1,9 +1,41 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { get } from 'svelte/store';
+	import { page } from '$app/stores';
+	import { widgetRegistry } from '$lib/state/widgetState';
 	import Card from './Card.svelte';
+
+	export let widgetId: string = 'random-card';
+
+	type RandomWidgetState = {
+		randomValue: number | null;
+		error: string | null;
+	};
 
 	let randomValue: number | null = null;
 	let loading = false;
 	let error: string | null = null;
+
+	const restoreFromRegistry = () => {
+		const pathname = get(page).url.pathname;
+		const stored = widgetRegistry.getWidgetState<RandomWidgetState>(pathname, widgetId);
+		if (stored) {
+			randomValue = stored.randomValue;
+			error = stored.error;
+		}
+	};
+
+	const persistToRegistry = () => {
+		const pathname = get(page).url.pathname;
+		widgetRegistry.setWidgetState<RandomWidgetState>(pathname, widgetId, {
+			randomValue,
+			error
+		});
+	};
+
+	onMount(() => {
+		restoreFromRegistry();
+	});
 
 	const fetchRandom = async () => {
 		loading = true;
@@ -15,9 +47,11 @@
 			}
 			const data = await res.json();
 			randomValue = data.value ?? null;
+			persistToRegistry();
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Unknown error';
 			randomValue = null;
+			persistToRegistry();
 		} finally {
 			loading = false;
 		}

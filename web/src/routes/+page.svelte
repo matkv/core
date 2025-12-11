@@ -12,7 +12,7 @@
 	</p>
 
 	<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-		<RandomCard />
+		<RandomCard widgetId="home-random" />
 		<Card title="Example widget" subtitle="Example widget description">
 			<p class="text-2xl font-semibold"></p>
 		</Card>
