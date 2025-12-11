@@ -38,6 +38,8 @@ Here the assets for the web UI are embedded into the Go binary using `embed.FS`.
 
 This installs the binary to `$GOPATH/bin` (usually `~/go/bin`). Ensure this directory is in your `PATH`.
 
+Alternatively, you can just use the latest binary from the [Releases](https://github.com/matkv/core/releases).
+
 Then run commands like:
 ```bash
 core version
