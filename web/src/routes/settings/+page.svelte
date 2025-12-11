@@ -1,15 +1,50 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { get } from 'svelte/store';
+	import { page } from '$app/stores';
+	import { widgetRegistry } from '$lib/state/widgetState';
+
+	type SettingsPageState = {
+		settings: Record<string, any> | null;
+		error: string | null;
+	};
+
 	let settings: Record<string, any> | null = null;
 	let error: string | null = null;
+	const widgetId = 'settings-page';
+
+	const restoreFromRegistry = () => {
+		const pathname = get(page).url.pathname;
+		const stored = widgetRegistry.getWidgetState<SettingsPageState>(pathname, widgetId);
+		if (stored) {
+			settings = stored.settings;
+			error = stored.error;
+		}
+	};
+
+	const persistToRegistry = () => {
+		const pathname = get(page).url.pathname;
+		widgetRegistry.setWidgetState<SettingsPageState>(pathname, widgetId, {
+			settings,
+			error
+		});
+	};
 
 	onMount(async () => {
+		restoreFromRegistry();
+		// If we already have data or an error, don't refetch
+		if (settings !== null || error !== null) {
+			return;
+		}
+
 		try {
 			const res = await fetch('/api/settings');
 			if (!res.ok) throw new Error(`HTTP ${res.status}`);
 			settings = await res.json();
 		} catch (e) {
 			error = (e as Error).message;
+		} finally {
+			persistToRegistry();
 		}
 	});
 </script>
