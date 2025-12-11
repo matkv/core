@@ -9,7 +9,7 @@
   </a>
 </p>
 
-Re-writing this whole project. The general idea is to have a CLI tool like before, but this time with an additional command that starts web server that runs a little web UI for which I'll probably use SvelteKit.
+A Go CLI app with a SvelteKit web app. Mainly a project for learning and experimenting with Go - I'm trying to write most of the Go code myself, but in the web app some vibe-coding is allowed 😉.
 
 ![Screenshot Web UI](./docs/screenshots/screenshot-main.png)
 
