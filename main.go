@@ -1,7 +1,7 @@
 package main
 
-import "github.com/matkv/core/internal/cli"
+import "github.com/matkv/core/cmd"
 
 func main() {
-	cli.Execute()
+	cmd.Execute()
 }
