@@ -1,0 +1,66 @@
+name: Build and Release on Tag
+
+on:
+  push:
+    tags:
+      - "v*"      # tag needs to start with v
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            ext: ""
+          - goos: windows
+            goarch: amd64
+            ext: ".exe"
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      # --- Web build (SvelteKit -> internal/ui/build) ---
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "25.2.0"   # Node v25.2
+
+      - name: Build web UI
+        run: make build-web
+
+      # --- Go build for matrix target ---
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"       # Go 1.25
+
+      - name: Build Go binary for ${{ matrix.goos }}-${{ matrix.goarch }}
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          mkdir -p bin
+          OUTPUT="core-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }}"
+          echo "Building $OUTPUT"
+          go build -o "bin/${OUTPUT}" .
+
+      # --- Create / update GitHub Release and upload binaries ---
+
+      - name: Create or update GitHub Release and upload binaries
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          files: |
+            bin/core-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
