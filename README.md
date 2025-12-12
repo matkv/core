@@ -9,60 +9,22 @@
   </a>
 </p>
 
-A Go CLI app with a SvelteKit web app. Mainly a project for learning and experimenting with Go - I'm trying to write most of the Go code myself, but in the web app some vibe-coding is allowed 😉.
+A Go CLI app to automate some personal tasks - mainly a project for learning & experimenting with Go. This is meant to be a little pocket-knife for various random tasks I'd like to run in the terminal so I don't really mind if the features are a bit bloated or unfocused. It uses [Cobra](https://github.com/spf13/cobra) & [Viper](https://github.com/spf13/viper) for the CLI and [SvelteKit](https://kit.svelte.dev/) for a web UI. I'm trying to write most of the Go code myself, but in the web app some vibe-coding is allowed 😉.
 
 ![Screenshot Web UI](./docs/screenshots/screenshot-main.png)
 
-## Getting Started
+## Features
 
-### Prerequisites
+- [x] CLI & config management with Cobra & Viper
+- [x] Embedded SvelteKit web UI
+- [x] `core browser` command to open multiple pre-defined URLs in the default browser
+- [ ] System tray mode
+- [ ] `core pick` command to pick one option from multiple provided arguments
+- [ ] `core journal` command to add journal entries to my Obisidan vault from the CLI or web UI
 
-- Go 1.21+
-- Node.js & npm
 
-### Installation
+## Installation
 
-If I want some changes in the web app to also be included in the binary, first build the SvelteKit app & commit the changes from the build directory:
 
-```bash
-make build-web
-git add internal/ui/build
-```
 
-Install the `core` binary globally so you can run it from anywhere:
-
-```bash
-go install github.com/matkv/core@latest
-```
-Here the assets for the web UI are embedded into the Go binary using `embed.FS`. So when you run `core serve`, it serves the embedded SvelteKit app.
-
-This installs the binary to `$GOPATH/bin` (usually `~/go/bin`). Ensure this directory is in your `PATH`.
-
-Alternatively, you can just use the latest binary from the [Releases](https://github.com/matkv/core/releases).
-
-Then run commands like:
-```bash
-core version
-core serve
-```
-
-### Running the Application
-
-#### 1. Production
-To build the SvelteKit app, embed it into the Go binary, and run the server:
-
-```bash
-make run
-```
-The server will start at `http://localhost:8080`.
-
-#### 2. Development Mode
-
-In VS Code, pick: **Dev: Go + Svelte (full debug)** in the Run and Debug panel.
-
-This starts the Go API and the Svelte dev server, and opens a Chrome window with debugging enabled. Breakpoints work across routes (including `settings/+page.svelte`).
-
-## Debugging (VS Code)
-
-- **Dev: Go + Svelte (full debug):** Runs the Go server and Svelte dev server, opens Chrome with debugger attached. Use this to debug both backend and frontend together.
-- **Debug Core CLI:** Runs only the CLI under the debugger. Use this to debug the actual CLI commands.
+## Development
