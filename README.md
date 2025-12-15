@@ -22,9 +22,33 @@ A Go CLI app to automate some personal tasks - mainly a project for learning & e
 - [ ] `core pick` command to pick one option from multiple provided arguments
 - [ ] `core journal` command to add journal entries to my Obisidan vault from the CLI or web UI
 
-
 ## Installation
 
+There are two ways to install this app:
+1. **Pre-built binaries**: Download the latest release from the [Releases](https://github.com/matkv/core/releases) page
+2. **Go install**: If you have Go installed, you can run `go install github.com/matkv/core@latest`
 
+## Configuration
+
+The app uses a configuration file located in the home directory of the user (on Linux `~/.config/core/config.yaml` ) by default. If it doesn't exist yet, it will be created with default settings on the first run.
+
+```yaml
+paths:
+  obsidianvault: /home/matkv/documents/Obsidian Vault
+device: desktop
+```
+
+The three supported device types are `desktop`, `laptop` and `wsl`.
 
 ## Development
+
+There are two different launch options:
+- **Debug CLI**: Starts the GO CLI app with working breakpoints. Command line arguments can be set in then `launch.json` file.
+- **Debug web app**: Starts the SvelteKit web app with working Go & Svelte breakpoints.
+
+To make sure that changes in the web app are included in the binary when installing it with `go install`, the web app must be built and the changes need to be commited:
+
+```bash
+make build-web
+git add web/build
+```

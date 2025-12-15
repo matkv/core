@@ -5,16 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug Core CLI",
+            "name": "Debug CLI",
             "type": "go",
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}",
             "cwd": "${workspaceFolder}",
-            "args": []
+            "args": ["random"]
         },
         {
-            "name": "Svelte: Debug in Chrome",
+            "name": "Debug Svelte frontend",
             "type": "chrome",
             "request": "launch",
             "url": "http://localhost:4173",
@@ -30,7 +30,7 @@
             "presentation": { "hidden": true }
         },
         {
-            "name": "Go: debug core serve",
+            "name": "Debug Go CLI - serve command",
             "type": "go",
             "request": "launch",
             "mode": "debug",
@@ -45,7 +45,7 @@
             "presentation": { "hidden": true }
         },
         {
-            "name": "Frontend: npm run dev",
+            "name": "Debug frontend - npm run dev",
             "type": "node-terminal",
             "request": "launch",
             "command": "cd web && npm run dev",
@@ -55,11 +55,11 @@
     ],
     "compounds": [
         {
-            "name": "Dev: Go + Svelte (full debug)",
+            "name": "Debug web app",
             "configurations": [
-                "Go: debug core serve",
-                "Frontend: npm run dev",
-                "Svelte: Debug in Chrome"
+                "Debug Go CLI - serve command",
+                "Debug frontend - npm run dev",
+                "Debug Svelte frontend"
             ],
             "presentation": { "hidden": false }
         }
