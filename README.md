@@ -9,7 +9,9 @@
   </a>
 </p>
 
-A Go CLI app to automate some personal tasks - mainly a project for learning & experimenting with Go. This is meant to be a little pocket-knife for various random tasks I'd like to run in the terminal so I don't really mind if the features are a bit bloated or unfocused. It uses [Cobra](https://github.com/spf13/cobra) & [Viper](https://github.com/spf13/viper) for the CLI and [SvelteKit](https://kit.svelte.dev/) for a web UI. I'm trying to write most of the Go code myself, but in the web app some vibe-coding is allowed 😉.
+A Go CLI app to automate some personal tasks - mainly a project for learning & experimenting with Go. This is meant to be a little pocket-knife for various random tasks I'd like to run in the terminal so I don't really mind if the features are a bit bloated or unfocused. It uses [Cobra](https://github.com/spf13/cobra) & [Viper](https://github.com/spf13/viper) for the CLI and [SvelteKit](https://kit.svelte.dev/) for a web UI. 
+
+I'm trying to write most of the Go code myself, but in the web app some vibe-coding is allowed 😉.
 
 ![Screenshot Web UI](./docs/screenshots/screenshot-main.png)
 
