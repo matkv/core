@@ -83,3 +83,6 @@ main.go            Entrypoint calling `cmd.Execute()`.
 4. For backend work: `go test ./...` or `go run . random`.
 5. For frontend work: `npm run dev` (frontend only) or `make run` (backend + embedded UI).
 6. Keep `internal/ui/build` in sync whenever shipping frontend changes.
+
+## Maintenance
+- When the project setup, tooling, or workflows change, update this file immediately so the instructions stay accurate.
