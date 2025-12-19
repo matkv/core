@@ -1,8 +1,8 @@
-package chooser
+package picker
 
 import "math/rand/v2"
 
-func Choose(choices []string) string {
+func Pick(choices []string) string {
 	if len(choices) == 0 {
 		return ""
 	}

@@ -57,7 +57,7 @@ func init() {
 	addCommand(randomCmd, config.Desktop, config.Laptop)
 	addCommand(serveCmd, config.Desktop, config.Laptop, config.WSL)
 	addCommand(browserCmd, config.Desktop, config.Laptop)
-	addCommand(chooseCmd, config.Desktop, config.Laptop, config.WSL)
+	addCommand(pickCmd, config.Desktop, config.Laptop, config.WSL)
 }
 
 func addCommand(command *cobra.Command, devices ...config.Device) {
