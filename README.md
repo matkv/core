@@ -21,7 +21,7 @@ I'm trying to write most of the Go code myself, but in the web app some vibe-cod
 - [x] Embedded SvelteKit web UI
 - [x] `core browser` command to open multiple pre-defined URLs in the default browser
 - [ ] System tray mode
-- [ ] `core pick` command to pick one option from multiple provided arguments
+- [x] `core pick` command to pick one option from multiple provided arguments
 - [ ] `core journal` command to add journal entries to my Obisidan vault from the CLI or web UI
 
 ## Installation
