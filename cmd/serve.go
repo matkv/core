@@ -6,8 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/matkv/core/internal/app"
 	"github.com/matkv/core/internal/config"
-	"github.com/matkv/core/internal/server"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +19,7 @@ var serveCmd = &cobra.Command{
 
 		// start server in a goroutine
 		go func() {
-			if err := server.Start(port); err != nil {
+			if err := app.Start(port); err != nil {
 				fmt.Fprintf(os.Stderr, "server error: %v\n", err)
 			}
 		}()
