@@ -23,7 +23,6 @@ var rootCmd = &cobra.Command{
 	Short: "Core CLI tools & SvelteKit web app",
 	RunE: func(cmd *cobra.Command, args []string) error { // show help if no subcommand is provided
 		// example usage of loaded config
-		fmt.Printf("Obsidian vault: %s\n", config.C.Paths.ObsidianVault)
 		fmt.Printf("Device type: %s\n", config.C.Device)
 		return cmd.Help()
 	},
@@ -58,6 +57,7 @@ func init() {
 	addCommand(serveCmd, config.Desktop, config.Laptop, config.WSL)
 	addCommand(browserCmd, config.Desktop, config.Laptop)
 	addCommand(pickCmd, config.Desktop, config.Laptop, config.WSL)
+	addCommand(websiteCmd, config.Desktop, config.Laptop)
 }
 
 func addCommand(command *cobra.Command, devices ...config.Device) {

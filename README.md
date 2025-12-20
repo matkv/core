@@ -23,6 +23,7 @@ I'm trying to write most of the Go code myself, but in the web app some vibe-cod
 - [ ] System tray mode
 - [x] `core pick` command to pick one option from multiple provided arguments
 - [ ] `core journal` command to add journal entries to my Obisidan vault from the CLI or web UI
+- [ ] `core website` command to manage & build my hugo website (WIP)
 
 ## Installation
 
