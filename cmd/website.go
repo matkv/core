@@ -15,14 +15,23 @@ var websiteCmd = &cobra.Command{
 		return nil
 	}}
 
-var websiteBuildCmd = &cobra.Command{
-	Use:   "build",
-	Short: "Build the Hugo website",
+var websiteScanCmd = &cobra.Command{
+	Use:   "scan",
+	Short: "Scan the Obsidian vault & print stats",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("Hello from the subcommand")
-		return website.Hello()
+		fmt.Println("Hello from the scan subcommand")
+		return website.Scan()
+	}}
+
+var websiteSyncCmd = &cobra.Command{
+	Use:   "sync",
+	Short: "Sync and copy Obsidian content to the hugo site",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("Hello from the sync subcommand")
+		return website.Sync()
 	}}
 
 func init() {
-	websiteCmd.AddCommand(websiteBuildCmd)
+	websiteCmd.AddCommand(websiteScanCmd)
+	websiteCmd.AddCommand(websiteSyncCmd)
 }

@@ -6,9 +6,16 @@ import (
 	"github.com/matkv/core/internal/obsidian"
 )
 
-func Hello() error {
-	fmt.Println("Hello from the website package")
+func Scan() error {
+	fmt.Println("Scanning the Obsidian vault...")
+	// Placeholder for actual scanning logic
+	obsidian.Hello()
+	return nil
+}
 
+func Sync() error {
+	fmt.Println("Syncing Obsidian content to Hugo site...")
+	// Placeholder for actual syncing logic
 	obsidian.Hello()
 	return nil
 }
