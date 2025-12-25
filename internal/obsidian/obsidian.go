@@ -7,17 +7,11 @@ import (
 	"strings"
 
 	"github.com/matkv/core/internal/config"
+	"github.com/matkv/core/internal/types"
 )
 
-type ObsidianFile struct {
-	Path        string
-	Name        string
-	Description string
-}
-
-func ScanVaultForContentFiles() ([]ObsidianFile, error) {
+func LoadContentFilesOfType[T types.ContentType](contentType T) ([]types.ContentType, error) {
 	vaultPath := config.C.Paths.ObsidianVault
-	fmt.Println("Scanning vault at:", vaultPath)
 
 	if vaultPath == "" {
 		return nil, fmt.Errorf("Obsidian vault path is not set in the configuration")
@@ -29,22 +23,33 @@ func ScanVaultForContentFiles() ([]ObsidianFile, error) {
 	}
 
 	fmt.Println("Vault directory exists")
+	fmt.Println("Loading content files of type from vault at:", contentType.ObsidianRootPath())
 
-	var contentFiles []ObsidianFile
-	contentFiles, err = ScanMarkdownFiles(vaultPath)
+	var obsidianFiles []types.ObsidianFile
+	obsidianFiles, err = ScanMarkdownFilesInPath(vaultPath, contentType.ObsidianRootPath(), contentType)
 	if err != nil {
 		return nil, err
+	}
+
+	var contentFiles []types.ContentType
+	for _, file := range obsidianFiles {
+		contentFile := contentType.CreateNew(file)
+		contentFiles = append(contentFiles, contentFile)
 	}
 
 	return contentFiles, nil
 }
 
-func ScanMarkdownFiles(vaultPath string) ([]ObsidianFile, error) {
+func ScanMarkdownFilesInPath(vaultPath string, subPath string, contentType types.ContentType) ([]types.ObsidianFile, error) {
+	fullPath := filepath.Join(vaultPath, subPath)
 
-	fmt.Println("Scanning for markdown files in:", vaultPath)
-	var files []ObsidianFile
+	// print which type is being scanned and the path
 
-	err := filepath.Walk(vaultPath, func(path string, info os.FileInfo, err error) error {
+	fmt.Printf("Scanning for type: %s at path: %s\n", contentType, fullPath)
+
+	var files []types.ObsidianFile
+
+	err := filepath.Walk(fullPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -55,7 +60,7 @@ func ScanMarkdownFiles(vaultPath string) ([]ObsidianFile, error) {
 		}
 
 		if !info.IsDir() && strings.HasSuffix(info.Name(), ".md") {
-			files = append(files, ObsidianFile{
+			files = append(files, types.ObsidianFile{
 				Path: path,
 				Name: info.Name(),
 			})

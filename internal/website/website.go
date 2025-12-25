@@ -4,19 +4,23 @@ import (
 	"fmt"
 
 	"github.com/matkv/core/internal/obsidian"
+	"github.com/matkv/core/internal/types"
 )
 
 func Scan() error {
 	fmt.Println("Scanning the Obsidian vault...")
 
-	contentFiles, err := obsidian.ScanVaultForContentFiles()
+	bookReviews, err := obsidian.LoadContentFilesOfType(types.BookReview{})
 	if err != nil {
 		return err
 	}
 
-	for _, file := range contentFiles {
-		fmt.Println(file.Name)
+	fmt.Printf("Found %d book reviews:\n", len(bookReviews))
+	for _, br := range bookReviews {
+		b := br.(types.BookReview)
+		fmt.Printf("- %s by %s\n", b.Title, b.Author)
 	}
+
 	return nil
 }
 

@@ -10,8 +10,8 @@
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}",
-            "cwd": "${workspaceFolder}",
-            "args": ["random"]
+            "cwd": "${workspaceFolder",
+            "args": ["website", "scan"]
         },
         {
             "name": "Debug Svelte frontend",
