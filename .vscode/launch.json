@@ -1,67 +1,65 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Debug CLI",
-            "type": "go",
-            "request": "launch",
-            "mode": "debug",
-            "program": "${workspaceFolder}",
-            "cwd": "${workspaceFolder",
-            "args": ["website", "scan"]
-        },
-        {
-            "name": "Debug Svelte frontend",
-            "type": "chrome",
-            "request": "launch",
-            "url": "http://localhost:4173",
-            "webRoot": "${workspaceFolder}/web",
-            "sourceMapPathOverrides": {
-                "/@fs/*": "/*",
-                "vite:///*": "${workspaceFolder}/web/*",
-                "webpack:///*": "${workspaceFolder}/web/*",
-                "*/src/*": "${workspaceFolder}/web/src/*",
-                "*/node_modules/*": "${workspaceFolder}/web/node_modules/*",
-                "/*": "${workspaceFolder}/web/*"
-            },
-            "presentation": { "hidden": true }
-        },
-        {
-            "name": "Debug Go CLI - serve command",
-            "type": "go",
-            "request": "launch",
-            "mode": "debug",
-            "program": "${workspaceFolder}",
-            "args": [
-                "serve"
-            ],
-            "cwd": "${workspaceFolder}",
-            "env": {
-                "GO111MODULE": "on"
-            },
-            "presentation": { "hidden": true }
-        },
-        {
-            "name": "Debug frontend - npm run dev",
-            "type": "node-terminal",
-            "request": "launch",
-            "command": "cd web && npm run dev",
-            "cwd": "${workspaceFolder}",
-            "presentation": { "hidden": true }
-        },
-    ],
-    "compounds": [
-        {
-            "name": "Debug web app",
-            "configurations": [
-                "Debug Go CLI - serve command",
-                "Debug frontend - npm run dev",
-                "Debug Svelte frontend"
-            ],
-            "presentation": { "hidden": false }
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug CLI",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}",
+      "args": ["website", "scan"]
+    },
+    {
+      "name": "Debug Svelte frontend",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:4173",
+      "webRoot": "${workspaceFolder}/web",
+      "sourceMapPathOverrides": {
+        "/@fs/*": "/*",
+        "vite:///*": "${workspaceFolder}/web/*",
+        "webpack:///*": "${workspaceFolder}/web/*",
+        "*/src/*": "${workspaceFolder}/web/src/*",
+        "*/node_modules/*": "${workspaceFolder}/web/node_modules/*",
+        "/*": "${workspaceFolder}/web/*"
+      },
+      "presentation": { "hidden": true }
+    },
+    {
+      "name": "Debug Go CLI - serve command",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}",
+      "args": ["serve"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "GO111MODULE": "on"
+      },
+      "presentation": { "hidden": true }
+    },
+    {
+      "name": "Debug frontend - npm run dev",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "cd web && npm run dev",
+      "cwd": "${workspaceFolder}",
+      "presentation": { "hidden": true }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug web app",
+      "configurations": [
+        "Debug Go CLI - serve command",
+        "Debug frontend - npm run dev",
+        "Debug Svelte frontend"
+      ],
+      "presentation": { "hidden": false }
+    }
+  ]
 }

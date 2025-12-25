@@ -4,6 +4,7 @@ type ContentType interface {
 	WebsiteRootPath() string
 	ObsidianRootPath() string
 	CreateNew(file ObsidianFile) ContentType // create a new instance from a provided ObsidianFile
+	TypeName() string                        // returns the type name for printing
 }
 
 type BookReview struct {
@@ -26,6 +27,10 @@ func (b BookReview) CreateNew(file ObsidianFile) ContentType {
 	}
 }
 
+func (b BookReview) TypeName() string {
+	return "BookReview"
+}
+
 type MovieReview struct{}
 
 func (m MovieReview) WebsiteRootPath() string {
@@ -38,4 +43,8 @@ func (m MovieReview) ObsidianRootPath() string {
 
 func (m MovieReview) CreateNew(file ObsidianFile) ContentType {
 	return MovieReview{}
+}
+
+func (m MovieReview) TypeName() string {
+	return "MovieReview"
 }

@@ -23,7 +23,7 @@ func LoadContentFilesOfType[T types.ContentType](contentType T) ([]types.Content
 	}
 
 	fmt.Println("Vault directory exists")
-	fmt.Println("Loading content files of type from vault at:", contentType.ObsidianRootPath())
+	fmt.Println("Loading content files from vault at:", contentType.ObsidianRootPath())
 
 	var obsidianFiles []types.ObsidianFile
 	obsidianFiles, err = ScanMarkdownFilesInPath(vaultPath, contentType.ObsidianRootPath(), contentType)
@@ -43,9 +43,7 @@ func LoadContentFilesOfType[T types.ContentType](contentType T) ([]types.Content
 func ScanMarkdownFilesInPath(vaultPath string, subPath string, contentType types.ContentType) ([]types.ObsidianFile, error) {
 	fullPath := filepath.Join(vaultPath, subPath)
 
-	// print which type is being scanned and the path
-
-	fmt.Printf("Scanning for type: %s at path: %s\n", contentType, fullPath)
+	fmt.Printf("Scanning for type: %s at path: %s\n", contentType.TypeName(), fullPath)
 
 	var files []types.ObsidianFile
 
