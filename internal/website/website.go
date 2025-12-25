@@ -10,15 +10,29 @@ import (
 func Scan() error {
 	fmt.Println("Scanning the Obsidian vault...")
 
-	bookReviews, err := obsidian.LoadContentFilesOfType(types.BookReview{})
-	if err != nil {
-		return err
+	contentTypes := []types.ContentType{
+		types.BookReview{},
+		// types.MovieReview{},
 	}
 
-	fmt.Printf("Found %d book reviews:\n", len(bookReviews))
-	for _, br := range bookReviews {
-		b := br.(types.BookReview)
-		fmt.Printf("- %s by %s\n", b.Title, b.Author)
+	for _, ct := range contentTypes {
+		files, err := obsidian.LoadContentFilesOfType(ct)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("Found %d %s(s):\n", len(files), ct.TypeName())
+		for _, f := range files {
+			switch v := f.(type) {
+			case types.BookReview:
+				fmt.Printf("- %s by %s\n", v.Title, v.Author)
+			case types.MovieReview:
+				fmt.Printf("- %s\n", v.TypeName())
+			// Add more cases for additional types
+			default:
+				fmt.Printf("- %v\n", v)
+			}
+		}
 	}
 
 	return nil

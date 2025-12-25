@@ -43,6 +43,10 @@ func LoadContentFilesOfType[T types.ContentType](contentType T) ([]types.Content
 func ScanMarkdownFilesInPath(vaultPath string, subPath string, contentType types.ContentType) ([]types.ObsidianFile, error) {
 	fullPath := filepath.Join(vaultPath, subPath)
 
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		return nil, fmt.Errorf("path does not exist in Obsidian vault: %s", fullPath)
+	}
+
 	fmt.Printf("Scanning for type: %s at path: %s\n", contentType.TypeName(), fullPath)
 
 	var files []types.ObsidianFile
