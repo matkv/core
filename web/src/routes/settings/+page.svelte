@@ -3,13 +3,22 @@
 	import { get } from 'svelte/store';
 	import { page } from '$app/stores';
 	import { widgetRegistry } from '$lib/state/widgetState';
+	import { Card } from '$lib';
+
+	type Settings = {
+		Paths?: {
+			ObsidianVault?: string;
+			Website?: string;
+		};
+		Device?: string;
+	};
 
 	type SettingsPageState = {
-		settings: Record<string, any> | null;
+		settings: Settings | null;
 		error: string | null;
 	};
 
-	let settings: Record<string, any> | null = null;
+	let settings: Settings | null = null;
 	let error: string | null = null;
 	const widgetId = 'settings-page';
 
@@ -49,35 +58,40 @@
 	});
 </script>
 
-<section class="space-y-4">
-	<h1 class="text-2xl font-bold text-neutral-100">Settings</h1>
-	<p class="text-neutral-400">App configuration loaded from server.</p>
+<section class="space-y-6">
+	<div class="space-y-2">
+		<h1 class="text-3xl font-semibold tracking-tight text-neutral-100">Settings</h1>
+		<p class="text-sm text-neutral-400">App configuration loaded from server.</p>
+	</div>
 
 	{#if error}
-		<div class="text-red-500">Failed to load settings: {error}</div>
+		<div class="surface-solid p-5">
+			<p class="text-sm font-medium text-red-400">Failed to load settings</p>
+			<p class="mt-1 text-sm text-neutral-300">{error}</p>
+		</div>
 	{:else if settings}
-		<div class="space-y-4">
-			<div class="space-y-2">
-				<h2 class="text-lg font-semibold text-neutral-100">Key settings</h2>
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-					<div class="border border-neutral-700 rounded p-3">
-						<div class="text-sm text-neutral-400">Obsidian vault</div>
-						<div class="text-neutral-100 break-all">{settings?.Paths?.ObsidianVault ?? '—'}</div>
+		<div class="grid gap-4 lg:grid-cols-2">
+			<Card title="Key settings" subtitle="High-signal configuration values">
+				<div class="grid gap-3">
+					<div class="surface-solid p-4">
+						<div class="text-xs font-medium text-neutral-400">Obsidian vault</div>
+						<div class="mt-1 break-all text-sm text-neutral-100">
+							{settings?.Paths?.ObsidianVault ?? '—'}
+						</div>
 					</div>
 				</div>
-			</div>
+			</Card>
 
-			<div class="space-y-2">
-				<h3 class="text-md font-semibold text-neutral-100">Raw JSON</h3>
+			<Card title="Raw JSON" subtitle="Full settings payload">
 				<pre
-					class="bg-neutral-800 text-neutral-100 p-3 rounded text-sm overflow-auto">{JSON.stringify(
+					class="surface-solid max-h-112 overflow-auto p-4 text-xs text-neutral-100">{JSON.stringify(
 						settings,
 						null,
 						2
 					)}</pre>
-			</div>
+			</Card>
 		</div>
 	{:else}
-		<div class="text-neutral-400">Loading settings…</div>
+		<div class="surface p-5 text-sm text-neutral-400">Loading settings…</div>
 	{/if}
 </section>

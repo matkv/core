@@ -60,12 +60,7 @@
 
 <Card title="Random number demo" subtitle="Calls Go /api/random">
 	<div class="space-y-3">
-		<button
-			class="rounded bg-neutral-800 px-3 py-1.5 text-sm font-medium text-neutral-100 hover:bg-neutral-700 disabled:opacity-60"
-			type="button"
-			on:click={fetchRandom}
-			disabled={loading}
-		>
+		<button class="btn-secondary" type="button" on:click={fetchRandom} disabled={loading}>
 			{#if loading}
 				Fetching...
 			{:else}

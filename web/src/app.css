@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
 
@@ -6,6 +6,21 @@
 
 :root {
 	--sidebar-width: 16rem;
+}
+
+@layer base {
+	:root {
+		color-scheme: dark;
+	}
+
+	html {
+		text-rendering: optimizeLegibility;
+		font-variant-ligatures: contextual common-ligatures;
+	}
+
+	:focus-visible {
+		outline: none;
+	}
 }
 
 html,
@@ -16,11 +31,117 @@ body {
 body {
 	background-color: theme('colors.neutral.950');
 	color: theme('colors.neutral.100');
-	font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+	font-family:
+		ui-sans-serif,
+		system-ui,
+		-apple-system,
+		'Segoe UI',
+		Roboto,
+		'Helvetica Neue',
+		Arial;
 	-webkit-font-smoothing: antialiased;
 	margin: 0;
 }
 
-@utility content-area {
-	max-width: 1200px;
+@layer utilities {
+	.content-area {
+		max-width: 1200px;
+	}
+
+	.app-shell {
+		@apply min-h-screen bg-neutral-950 text-neutral-100;
+	}
+
+	.surface {
+		@apply rounded-xl border border-neutral-800/80 bg-neutral-950/40;
+		@apply shadow-sm shadow-black/30;
+		@apply backdrop-blur supports-backdrop-filter:bg-neutral-950/30;
+	}
+
+	.surface-solid {
+		@apply rounded-xl border border-neutral-800 bg-neutral-900;
+		@apply shadow-sm shadow-black/30;
+	}
+
+	.surface-hover {
+		@apply transition duration-200;
+		@apply hover:bg-neutral-900/50 hover:shadow-md hover:shadow-black/40;
+		@apply motion-reduce:transition-none;
+	}
+
+	.focus-ring {
+		@apply focus-visible:ring-2 focus-visible:ring-neutral-300/25;
+		@apply focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950;
+	}
+
+	.btn {
+		@apply inline-flex items-center justify-center gap-2;
+		@apply rounded-lg px-3 py-2 text-sm font-medium;
+		@apply border border-transparent;
+		@apply transition duration-200;
+		@apply disabled:cursor-not-allowed disabled:opacity-60;
+		@apply motion-reduce:transition-none;
+	}
+
+	.btn-primary {
+		@apply inline-flex items-center justify-center gap-2;
+		@apply rounded-lg px-3 py-2 text-sm font-medium;
+		@apply border border-transparent;
+		@apply transition duration-200;
+		@apply disabled:cursor-not-allowed disabled:opacity-60;
+		@apply motion-reduce:transition-none;
+		@apply bg-neutral-100 text-neutral-950;
+		@apply hover:bg-neutral-200;
+		@apply shadow-sm shadow-black/20;
+		@apply focus-visible:ring-2 focus-visible:ring-neutral-300/25;
+		@apply focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950;
+	}
+
+	.btn-secondary {
+		@apply inline-flex items-center justify-center gap-2;
+		@apply rounded-lg px-3 py-2 text-sm font-medium;
+		@apply border border-neutral-800;
+		@apply transition duration-200;
+		@apply disabled:cursor-not-allowed disabled:opacity-60;
+		@apply motion-reduce:transition-none;
+		@apply bg-neutral-900/70 text-neutral-100;
+		@apply hover:bg-neutral-900;
+		@apply shadow-sm shadow-black/20;
+		@apply focus-visible:ring-2 focus-visible:ring-neutral-300/25;
+		@apply focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950;
+	}
+
+	.btn-ghost {
+		@apply inline-flex items-center justify-center gap-2;
+		@apply rounded-lg px-3 py-2 text-sm font-medium;
+		@apply border border-transparent;
+		@apply transition duration-200;
+		@apply disabled:cursor-not-allowed disabled:opacity-60;
+		@apply motion-reduce:transition-none;
+		@apply bg-transparent text-neutral-100;
+		@apply hover:bg-neutral-900/60;
+		@apply focus-visible:ring-2 focus-visible:ring-neutral-300/25;
+		@apply focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950;
+	}
+
+	.field-label {
+		@apply block text-xs font-medium text-neutral-300;
+	}
+
+	.field {
+		@apply w-full rounded-lg;
+		@apply border border-neutral-800 bg-neutral-950/30;
+		@apply px-3 py-2 text-sm text-neutral-100;
+		@apply placeholder:text-neutral-500;
+		@apply shadow-sm shadow-black/20;
+		@apply focus:border-neutral-700;
+		@apply focus-visible:ring-2 focus-visible:ring-neutral-300/25;
+		@apply focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950;
+		@apply motion-reduce:transition-none;
+	}
+
+	.kbd {
+		@apply rounded-md border border-neutral-800 bg-neutral-950/40;
+		@apply px-1.5 py-0.5 text-[10px] font-medium text-neutral-300;
+	}
 }

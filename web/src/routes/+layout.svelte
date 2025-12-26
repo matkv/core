@@ -4,18 +4,19 @@
 	import Header from '$lib/components/Header.svelte';
 	import Sidebar from '$lib/components/Sidebar.svelte';
 	import CommandPalette from '$lib/components/CommandPalette.svelte';
+	import { onMount } from 'svelte';
 
-	export let data;
-
-	let sidebarOpen = false;
+	let sidebarCollapsed = false;
 	let commandPaletteOpen = false;
 
-	const toggleSidebar = () => {
-		sidebarOpen = !sidebarOpen;
-	};
+	onMount(() => {
+		const media = window.matchMedia('(min-width: 768px)');
+		// Mobile: collapsed by default. Desktop: expanded by default.
+		sidebarCollapsed = !media.matches;
+	});
 
-	const closeSidebar = () => {
-		sidebarOpen = false;
+	const toggleSidebarCollapsed = () => {
+		sidebarCollapsed = !sidebarCollapsed;
 	};
 
 	const openCommandPalette = () => {
@@ -44,12 +45,12 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
-<div class="min-h-screen flex bg-black">
-	<Sidebar open={sidebarOpen} on:close={closeSidebar} />
+<div class="app-shell flex">
+	<Sidebar collapsed={sidebarCollapsed} on:toggleCollapsed={toggleSidebarCollapsed} />
 
 	<div class="flex-1 flex flex-col">
-		<Header onToggleSidebar={toggleSidebar} onOpenCommandPalette={openCommandPalette} />
-		<main class="p-6">
+		<Header onOpenCommandPalette={openCommandPalette} />
+		<main id="main" class="px-4 py-6 sm:px-6 lg:px-8">
 			<div class="content-area mx-auto">
 				<slot />
 			</div>
