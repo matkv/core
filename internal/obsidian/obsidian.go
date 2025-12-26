@@ -10,7 +10,7 @@ import (
 	"github.com/matkv/core/internal/types"
 )
 
-func LoadContentFilesOfType[T types.ContentType](contentType T) ([]types.ContentType, error) {
+func LoadContentFilesOfType[T types.Content](contentType T) ([]types.Content, error) {
 	vaultPath := config.C.Paths.ObsidianVault
 
 	if vaultPath == "" {
@@ -23,24 +23,24 @@ func LoadContentFilesOfType[T types.ContentType](contentType T) ([]types.Content
 	}
 
 	fmt.Println("Vault directory exists")
-	fmt.Println("Loading content files from vault at:", contentType.ObsidianRootPath())
+	fmt.Println("Loading content files from vault at:", contentType.PathInObsidian())
 
 	var obsidianFiles []types.ObsidianFile
-	obsidianFiles, err = ScanMarkdownFilesInPath(vaultPath, contentType.ObsidianRootPath(), contentType)
+	obsidianFiles, err = ScanMarkdownFilesInPath(vaultPath, contentType.PathInObsidian(), contentType)
 	if err != nil {
 		return nil, err
 	}
 
-	var contentFiles []types.ContentType
+	var contentFiles []types.Content
 	for _, file := range obsidianFiles {
-		contentFile := contentType.CreateNew(file)
+		contentFile := contentType.NewFromFile(file)
 		contentFiles = append(contentFiles, contentFile)
 	}
 
 	return contentFiles, nil
 }
 
-func ScanMarkdownFilesInPath(vaultPath string, subPath string, contentType types.ContentType) ([]types.ObsidianFile, error) {
+func ScanMarkdownFilesInPath(vaultPath string, subPath string, contentType types.Content) ([]types.ObsidianFile, error) {
 	fullPath := filepath.Join(vaultPath, subPath)
 
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {

@@ -10,10 +10,13 @@ import (
 	"github.com/matkv/core/internal/types"
 )
 
+// TDODO adapt to scan single page types and list types
+// both Scan and Sync need to be adapted
+
 func Scan() error {
 	fmt.Println("Scanning the Obsidian vault...")
 
-	contentTypes := []types.ContentType{
+	contentTypes := []types.Content{
 		types.BookReview{},
 		// types.MovieReview{},
 	}
@@ -72,7 +75,7 @@ func Sync() error {
 
 	fmt.Printf("Content path: %s\n", contentPath)
 
-	contentTypes := []types.ContentType{
+	contentTypes := []types.Content{
 		types.BookReview{},
 		// types.MovieReview{},
 	}
