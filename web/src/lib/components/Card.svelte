@@ -3,14 +3,21 @@
 	export let subtitle: string = '';
 </script>
 
-<div class="bg-neutral-900 border border-neutral-800 rounded-lg shadow-sm p-4">
-	{#if title}
-		<div class="flex items-baseline justify-between">
-			<h3 class="text-sm font-medium">{title}</h3>
+<div class="surface surface-hover p-5">
+	{#if title || subtitle || $$slots.actions}
+		<div class="flex items-start justify-between gap-4">
+			<div class="min-w-0">
+				{#if title}
+					<h3 class="truncate text-sm font-semibold text-neutral-100">{title}</h3>
+				{/if}
+				{#if subtitle}
+					<p class="mt-1 text-xs text-neutral-400">{subtitle}</p>
+				{/if}
+			</div>
+			{#if $$slots.actions}
+				<div class="shrink-0"><slot name="actions" /></div>
+			{/if}
 		</div>
 	{/if}
-	{#if subtitle}
-		<p class="text-xs text-neutral-400">{subtitle}</p>
-	{/if}
-	<div class="mt-3"><slot /></div>
+	<div class="mt-4"><slot /></div>
 </div>

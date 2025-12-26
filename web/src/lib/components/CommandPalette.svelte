@@ -1,4 +1,8 @@
 <script lang="ts">
+	import { tick } from 'svelte';
+	import { fade, scale } from 'svelte/transition';
+	import { cubicOut } from 'svelte/easing';
+
 	type Command = {
 		id: string;
 		name: string;
@@ -26,6 +30,11 @@
 
 	let query = '';
 	let highlightedIndex = 0;
+	let inputEl: HTMLInputElement | null = null;
+
+	$: if (open) {
+		tick().then(() => inputEl?.focus());
+	}
 
 	const filtered = () => {
 		const q = query.toLowerCase().trim();
@@ -70,23 +79,25 @@
 
 {#if open}
 	<div
-		class="fixed inset-0 z-50 flex items-start justify-center pt-24"
+		class="fixed inset-0 z-50 flex items-start justify-center px-4 pt-20 sm:pt-24"
 		on:keydown={handleKeydown}
 		role="dialog"
 		aria-modal="true"
 		tabindex="-1"
 	>
 		<button
-			class="fixed inset-0 bg-black/50 cursor-default"
+			class="fixed inset-0 bg-black/50 backdrop-blur-sm"
 			type="button"
 			aria-label="Close command palette"
 			on:click={handleBackdropClick}
+			in:fade={{ duration: 140 }}
 		></button>
 
 		<div
-			class="relative w-full max-w-xl rounded-lg border border-neutral-800 bg-neutral-900 shadow-xl"
+			class="relative w-full max-w-xl overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950/70 shadow-xl shadow-black/40 backdrop-blur supports-backdrop-filter:bg-neutral-950/50"
+			in:scale={{ duration: 140, easing: cubicOut, start: 0.98 }}
 		>
-			<div class="flex items-center gap-2 border-b border-neutral-800 px-3 py-2">
+			<div class="flex items-center gap-2 border-b border-neutral-800/80 px-3 py-2">
 				<svg
 					class="h-4 w-4 text-neutral-500"
 					viewBox="0 0 24 24"
@@ -100,26 +111,24 @@
 					<path d="m21 21-4.3-4.3" />
 				</svg>
 				<input
+					bind:this={inputEl}
 					class="flex-1 bg-transparent text-sm text-neutral-100 placeholder:text-neutral-500 outline-none"
 					placeholder="Run a command..."
 					bind:value={query}
 				/>
-				<span
-					class="rounded border border-neutral-700 px-1.5 py-0.5 text-[10px] font-medium text-neutral-400"
-				>
-					Ctrl+Shift+Alt+P
-				</span>
+				<span class="kbd">Ctrl+Shift+Alt+P</span>
 			</div>
 
 			<ul class="max-h-64 overflow-y-auto py-1 text-sm">
 				{#if filtered().length === 0}
 					<li class="px-3 py-2 text-neutral-500">No commands match "{query}"</li>
 				{:else}
-					{#each filtered() as cmd, index}
+					{#each filtered() as cmd, index (cmd.id)}
 						<li
-							class="flex cursor-pointer flex-col gap-0.5 px-3 py-2 {index === highlightedIndex
-								? 'bg-neutral-800 text-neutral-50'
-								: 'text-neutral-200 hover:bg-neutral-800/60'}"
+							class="flex cursor-pointer flex-col gap-0.5 px-3 py-2 transition motion-reduce:transition-none {index ===
+							highlightedIndex
+								? 'bg-neutral-900/70 text-neutral-50'
+								: 'text-neutral-200 hover:bg-neutral-900/50'}"
 						>
 							<div class="flex items-center justify-between">
 								<span>{cmd.name}</span>
