@@ -5,103 +5,135 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/matkv/core/internal/config"
 	"github.com/matkv/core/internal/obsidian"
 	"github.com/matkv/core/internal/types"
 )
 
-// TDODO adapt to scan single page types and list types
-// both Scan and Sync need to be adapted
-
 func Scan() error {
 	fmt.Println("Scanning the Obsidian vault...")
 
-	contentTypes := []types.Content{
-		types.BookReview{},
-		// types.MovieReview{},
+	err := scanStandaloneContent()
+	if err != nil {
+		return err
 	}
 
-	for _, ct := range contentTypes {
-		files, err := obsidian.LoadContentFilesOfType(ct)
+	err = scanListContent()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func scanStandaloneContent() error {
+	fmt.Println("Scanning standalone content types...")
+
+	for _, ct := range types.StandalonePages {
+
+		file, err := obsidian.LoadStandaloneContent(ct)
 		if err != nil {
 			return err
 		}
 
-		fmt.Printf("Found %d %s(s):\n", len(files), ct.TypeName())
-		for _, f := range files {
-			switch v := f.(type) {
-			case types.BookReview:
-				fmt.Printf("- %s by %s\n", v.Title, v.Author)
-			case types.MovieReview:
-				fmt.Printf("- %s\n", v.TypeName())
-			// Add more cases for additional types
-			default:
-				fmt.Printf("- %v\n", v)
-			}
+		fmt.Printf("Loaded standalone content: %s\n", file.PathInWebsite())
+		switch v := file.(type) {
+		case types.NowPage:
+			fmt.Printf("Now Page Content: %s\n", v.Content)
+		default:
+			fmt.Printf("Unknown standalone content type: %v\n", v)
 		}
 	}
-
 	return nil
 }
 
-func Sync() error {
-	fmt.Println("Scanning the Obsidian vault...")
+func scanListContent() error {
+	fmt.Println("Scanning list content types...")
 
-	// TODO remove duplicate check in LoadContentFilesOfType
-	// check if obsidian vault path exists
-	vaultPath := config.C.Paths.ObsidianVault
+	for _, ct := range types.ListPages {
 
-	if vaultPath == "" {
-		return fmt.Errorf("Obsidian vault path is not set in the configuration")
-	}
-
-	info, err := os.Stat(vaultPath)
-	if err != nil || !info.IsDir() {
-		return fmt.Errorf("Obsidian vault path does not exist or is not a directory: %s", vaultPath)
-	}
-
-	websitePath := config.C.Paths.Website
-
-	if websitePath == "" {
-		return fmt.Errorf("Website path is not set in the configuration")
-	}
-
-	var contentPath string = filepath.Join(websitePath, "content")
-
-	info, err = os.Stat(contentPath)
-	if err != nil || !info.IsDir() {
-		return fmt.Errorf("Content path does not exist or is not a directory: %s", websitePath)
-	}
-
-	fmt.Printf("Content path: %s\n", contentPath)
-
-	contentTypes := []types.Content{
-		types.BookReview{},
-		// types.MovieReview{},
-	}
-
-	if err := clearContentDirAndRecreate(contentPath); err != nil {
-		return fmt.Errorf("failed to clear content directory: %w", err)
-	}
-
-	setupFolderStructure(contentPath)
-	generateStandaloneFiles()
-
-	for _, ct := range contentTypes {
-		files, err := obsidian.LoadContentFilesOfType(ct)
+		files, err := obsidian.LoadListContent(ct)
 		if err != nil {
-			return fmt.Errorf("failed to load files for %s: %w", ct.TypeName(), err)
+			return err
 		}
 
-		fmt.Printf("Syncing %d %s(s)...\n", len(files), ct.TypeName())
+		fmt.Printf("Loaded %d items of type %s\n", len(files), ct.TypeName())
 		for _, f := range files {
-			fmt.Printf("Syncing file: %v\n", f)
+			switch v := f.(type) {
+			case types.BookReview:
+				fmt.Printf("- Book Review: %s by %s\n", v.Title, v.Author)
+			case types.MovieReview:
+				fmt.Printf("- Movie Review: %s\n", v.Title)
+			case types.Project:
+				fmt.Printf("- Project: %s\n", v.Title)
+			default:
+				fmt.Printf("- Unknown list content type: %v\n", v)
+			}
 		}
 	}
-
-	fmt.Println("Do you want to sync the content?")
-
 	return nil
+}
+
+// TODO rewrite
+func Sync() error {
+	return nil
+	/*
+		 	fmt.Println("Scanning the Obsidian vault...")
+
+			// TODO remove duplicate check in LoadContentFilesOfType
+			// check if obsidian vault path exists
+			vaultPath := config.C.Paths.ObsidianVault
+
+			if vaultPath == "" {
+				return fmt.Errorf("Obsidian vault path is not set in the configuration")
+			}
+
+			info, err := os.Stat(vaultPath)
+			if err != nil || !info.IsDir() {
+				return fmt.Errorf("Obsidian vault path does not exist or is not a directory: %s", vaultPath)
+			}
+
+			websitePath := config.C.Paths.Website
+
+			if websitePath == "" {
+				return fmt.Errorf("Website path is not set in the configuration")
+			}
+
+			var contentPath string = filepath.Join(websitePath, "content")
+
+			info, err = os.Stat(contentPath)
+			if err != nil || !info.IsDir() {
+				return fmt.Errorf("Content path does not exist or is not a directory: %s", websitePath)
+			}
+
+			fmt.Printf("Content path: %s\n", contentPath)
+
+			contentTypes := []types.Content{
+				types.BookReview{},
+				// types.MovieReview{},
+			}
+
+			if err := clearContentDirAndRecreate(contentPath); err != nil {
+				return fmt.Errorf("failed to clear content directory: %w", err)
+			}
+
+			setupFolderStructure(contentPath)
+			generateStandaloneFiles()
+
+			for _, ct := range contentTypes {
+				files, err := obsidian.LoadContentFilesOfType(ct)
+				if err != nil {
+					return fmt.Errorf("failed to load files for %s: %w", ct.TypeName(), err)
+				}
+
+				fmt.Printf("Syncing %d %s(s)...\n", len(files), ct.TypeName())
+				for _, f := range files {
+					fmt.Printf("Syncing file: %v\n", f)
+				}
+			}
+
+			fmt.Println("Do you want to sync the content?")
+
+			return nil
+	*/
 }
 
 func clearContentDirAndRecreate(contentPath string) error {

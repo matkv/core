@@ -18,6 +18,10 @@ const ObsidianWebsiteContentDir = "Notes/matkv.dev"
 
 // Standalone content types
 
+var StandalonePages = []Content{
+	NowPage{},
+}
+
 type NowPage struct {
 	Content string
 }
@@ -46,6 +50,14 @@ func (n NowPage) NewFromFile(file ObsidianFile) Content {
 
 func (n NowPage) TypeName() string {
 	return "NowPage"
+}
+
+// List content types
+
+var ListPages = []Content{
+	BookReview{},
+	MovieReview{},
+	Project{},
 }
 
 type BookReview struct {

@@ -10,44 +10,89 @@ import (
 	"github.com/matkv/core/internal/types"
 )
 
-func LoadContentFilesOfType[T types.Content](contentType T) ([]types.Content, error) {
+func LoadStandaloneContent(pageType types.Content) (types.Content, error) {
 	vaultPath := config.C.Paths.ObsidianVault
 
-	if vaultPath == "" {
-		return nil, fmt.Errorf("Obsidian vault path is not set in the configuration")
+	if err := ensureVaultPathExists(vaultPath); err != nil {
+		return nil, err
 	}
 
-	info, err := os.Stat(vaultPath)
-	if err != nil || !info.IsDir() {
-		return nil, fmt.Errorf("Obsidian vault path does not exist or is not a directory: %s", vaultPath)
-	}
+	fmt.Println("Loading standalone content from vault at:", pageType.PathInObsidian())
 
-	fmt.Println("Vault directory exists")
-	fmt.Println("Loading content files from vault at:", contentType.PathInObsidian())
-
-	var obsidianFiles []types.ObsidianFile
-	obsidianFiles, err = ScanMarkdownFilesInPath(vaultPath, contentType.PathInObsidian(), contentType)
+	obsidianFile, err := ScanSingleMarkdownFile(vaultPath, pageType.PathInObsidian(), pageType)
 	if err != nil {
 		return nil, err
 	}
 
-	var contentFiles []types.Content
-	for _, file := range obsidianFiles {
-		contentFile := contentType.NewFromFile(file)
-		contentFiles = append(contentFiles, contentFile)
-	}
-
-	return contentFiles, nil
+	contentFile := pageType.NewFromFile(obsidianFile)
+	return contentFile, nil
 }
 
-func ScanMarkdownFilesInPath(vaultPath string, subPath string, contentType types.Content) ([]types.ObsidianFile, error) {
+func ScanSingleMarkdownFile(vaultPath string, subPath string, pageType types.Content) (types.ObsidianFile, error) {
+	fullPath := filepath.Join(vaultPath, subPath)
+
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		return types.ObsidianFile{}, fmt.Errorf("file does not exist in Obsidian vault: %s", fullPath)
+	}
+
+	fmt.Printf("Scanning for single page type: %s at path: %s\n", pageType.TypeName(), fullPath)
+
+	fileInfo, err := os.Stat(fullPath)
+	if err != nil {
+		return types.ObsidianFile{}, err
+	}
+
+	if fileInfo.IsDir() {
+		return types.ObsidianFile{}, fmt.Errorf("expected a file but found a directory: %s", fullPath)
+	}
+
+	return types.ObsidianFile{
+		Path: fullPath,
+		Name: filepath.Base(fullPath),
+	}, nil
+}
+
+func LoadListContent(listType types.Content) ([]types.Content, error) {
+	vaultPath := config.C.Paths.ObsidianVault
+
+	if err := ensureVaultPathExists(vaultPath); err != nil {
+		return nil, err
+	}
+
+	var obsidianFiles []types.ObsidianFile
+
+	// Scan for index file if IndexPathInObsidian is not empty
+	indexPath := listType.IndexPathInObsidian()
+	if indexPath != "" {
+		indexFile, err := ScanSingleMarkdownFile(vaultPath, indexPath, listType)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan index file for %s: %w", listType.TypeName(), err)
+		}
+		obsidianFiles = append(obsidianFiles, indexFile)
+	}
+
+	// Scan for all content files in the list directory
+	contentFiles, err := ScanMultipleMarkdownFiles(vaultPath, listType.PathInObsidian(), listType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to scan content files for %s: %w", listType.TypeName(), err)
+	}
+	obsidianFiles = append(obsidianFiles, contentFiles...)
+
+	var contentList []types.Content
+	for _, of := range obsidianFiles {
+		contentList = append(contentList, listType.NewFromFile(of))
+	}
+	return contentList, nil
+}
+
+func ScanMultipleMarkdownFiles(vaultPath string, subPath string, listType types.Content) ([]types.ObsidianFile, error) {
 	fullPath := filepath.Join(vaultPath, subPath)
 
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		return nil, fmt.Errorf("path does not exist in Obsidian vault: %s", fullPath)
 	}
 
-	fmt.Printf("Scanning for type: %s at path: %s\n", contentType.TypeName(), fullPath)
+	fmt.Printf("Scanning for list type: %s at path: %s\n", listType.TypeName(), fullPath)
 
 	var files []types.ObsidianFile
 
@@ -73,4 +118,16 @@ func ScanMarkdownFilesInPath(vaultPath string, subPath string, contentType types
 		return nil, err
 	}
 	return files, nil
+}
+
+func ensureVaultPathExists(vaultPath string) error {
+	if vaultPath == "" {
+		return fmt.Errorf("Obsidian vault path is not set in the configuration")
+	}
+
+	info, err := os.Stat(vaultPath)
+	if err != nil || !info.IsDir() {
+		return fmt.Errorf("Obsidian vault path does not exist or is not a directory: %s", vaultPath)
+	}
+	return nil
 }
