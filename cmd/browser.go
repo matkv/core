@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// TODO move all of this to internal/browser
 var browserFileFlag bool
 
 var browserCmd = &cobra.Command{
@@ -121,6 +122,14 @@ func openURLsFromFiles(files []string) error {
 func OpenURL(url string) error {
 	var cmd string
 	var args []string
+
+	if url == "" {
+		return fmt.Errorf("empty URL provided")
+	}
+
+	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+		url = "https://" + url
+	}
 
 	switch runtime.GOOS {
 	case "linux":
