@@ -20,6 +20,7 @@ const ObsidianWebsiteContentDir = "Notes/matkv.dev"
 
 var StandalonePages = []Content{
 	NowPage{},
+	HomePage{},
 }
 
 type NowPage struct {
@@ -50,6 +51,36 @@ func (n NowPage) NewFromFile(file ObsidianFile) Content {
 
 func (n NowPage) TypeName() string {
 	return "NowPage"
+}
+
+type HomePage struct {
+	Content string
+}
+
+func (h HomePage) PathInWebsite() string {
+	return "/"
+}
+
+func (h HomePage) PathInObsidian() string {
+	return filepath.Join(ObsidianWebsiteContentDir, "Index.md")
+}
+
+func (h HomePage) IsSinglePage() bool {
+	return true
+}
+
+func (h HomePage) IndexPathInObsidian() string {
+	return ""
+}
+
+func (h HomePage) NewFromFile(file ObsidianFile) Content {
+	return HomePage{
+		Content: file.Content,
+	}
+}
+
+func (h HomePage) TypeName() string {
+	return "HomePage"
 }
 
 // List content types
@@ -150,4 +181,70 @@ func (p Project) NewFromFile(file ObsidianFile) Content {
 
 func (p Project) TypeName() string {
 	return "Project"
+}
+
+type Log struct {
+	Content string
+}
+
+type Garden struct {
+	Content string
+}
+
+func (g Garden) PathInWebsite() string {
+	return "garden"
+}
+
+func (g Garden) PathInObsidian() string {
+	return filepath.Join(ObsidianWebsiteContentDir, "Garden")
+}
+
+func (g Garden) IsSinglePage() bool {
+	return false
+}
+
+func (g Garden) IndexPathInObsidian() string {
+	return filepath.Join(ObsidianWebsiteContentDir, "Garden", "Index.md")
+}
+
+// won't be used directlly
+func (g Garden) NewFromFile(file ObsidianFile) Content {
+	return Garden{
+		Content: file.Content,
+	}
+}
+
+func (g Garden) TypeName() string {
+	return "Garden"
+}
+
+type Library struct {
+	Content string
+}
+
+func (l Library) PathInWebsite() string {
+	return "library"
+}
+
+func (l Library) PathInObsidian() string {
+	return filepath.Join(ObsidianWebsiteContentDir, "Library")
+}
+
+func (l Library) IsSinglePage() bool {
+	return false
+}
+
+func (l Library) IndexPathInObsidian() string {
+	return filepath.Join(ObsidianWebsiteContentDir, "Library", "Index.md")
+}
+
+// won't be used directlly
+func (l Library) NewFromFile(file ObsidianFile) Content {
+	return Library{
+		Content: file.Content,
+	}
+}
+
+func (l Library) TypeName() string {
+	return "Library"
 }
