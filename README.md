@@ -38,6 +38,7 @@ The app uses a configuration file located in the home directory of the user (on 
 ```yaml
 paths:
   obsidianvault: /home/matkv/documents/Obsidian Vault
+  website: /home/matkv/code/matkv.dev
 device: desktop
 ```
 
