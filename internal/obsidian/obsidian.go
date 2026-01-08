@@ -2,12 +2,17 @@ package obsidian
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"unicode"
 
 	"github.com/matkv/core/internal/config"
 	"github.com/matkv/core/internal/types"
+	"go.yaml.in/yaml/v3"
+	"golang.org/x/text/unicode/norm"
 )
 
 func LoadStandaloneContent(pageType types.Content) (types.Content, error) {
@@ -158,23 +163,62 @@ func FixBookReviewCover(reviewFile string) error {
 		return fmt.Errorf("no cover URL found in review file: %s", reviewFilePath)
 	}
 
-	downloadBookCover(coverURL, coversDir)
+	fmt.Printf("Cover URL found: %s\n", coverURL)
 
-	clearcoverURLInReviewFile(reviewFilePath)
+	var bookSlug = slugify(reviewFile)
+	fmt.Printf("Book slug generated: %s\n", bookSlug)
+	downloadBookCover(coverURL, coversDir, bookSlug)
 
-	// read the review file
-	// parse frontmatter to get cover URL
-	// generate slug for book title + author to use as filename
-	// TODO download cover from cover property in the markdown file
-	// store it in the appropriate location in the Obsidian vault
-	// overwrite the cover property with the local path
-	// so workflow would be:
-	// create book review file using Obsidian web clipper
-	// web clipper gets the cover URL from goodreads
-	// this command downloads the cover to the vault
-	// updates the review file to point to the local cover image
-	// website command would then just use the local cover image when syncing
 	return nil
+}
+
+func downloadBookCover(coverURL, coversDir string, bookSlug string) {
+	fmt.Printf("Downloading cover from URL: %s to directory: %s\n", coverURL, coversDir)
+
+	// Determine the file extension from the URL
+	var fileExt string
+	if strings.HasSuffix(coverURL, ".jpg") || strings.HasSuffix(coverURL, ".jpeg") {
+		fileExt = ".jpg"
+	} else if strings.HasSuffix(coverURL, ".png") {
+		fileExt = ".png"
+	} else {
+		fileExt = ".jpg" // default to jpg
+	}
+
+	coverFilePath := filepath.Join(coversDir, bookSlug+fileExt)
+	fmt.Printf("Saving cover to file: %s\n", coverFilePath)
+
+	// Download the cover image
+	err := downloadFile(coverURL, coverFilePath)
+	if err != nil {
+		fmt.Printf("Failed to download cover image: %v\n", err)
+	} else {
+		fmt.Printf("Successfully downloaded cover image to: %s\n", coverFilePath)
+	}
+}
+
+func downloadFile(url string, filePath string) error {
+	out, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	// Get the data
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Check server response
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("bad status: %s", resp.Status)
+	}
+
+	// Write the body to file
+	_, err = io.Copy(out, resp.Body)
+	return err
 }
 
 func ensureReviewFileExists(reviewFilePath string) error {
@@ -196,5 +240,81 @@ func ensureCoversDirectoryExists(bookReviewsDir string) (string, error) {
 }
 
 func getCoverURLFromReviewFile(reviewFilePath string) string {
-	panic("unimplemented")
+	data, err := os.ReadFile(reviewFilePath)
+	if err != nil {
+		return ""
+	}
+
+	frontmatter, ok := extractFrontmatter(string(data))
+	if !ok {
+		return ""
+	}
+
+	var fm map[string]any
+	if err := yaml.Unmarshal([]byte(frontmatter), &fm); err != nil {
+		return ""
+	}
+
+	if v, ok := fm["cover"]; ok {
+		if s, ok := v.(string); ok {
+			return strings.TrimSpace(s)
+		}
+	}
+	return ""
+}
+
+// extractFrontmatter extracts and returns the YAML frontmatter (without the --- delimiters).
+// Returns the frontmatter string and true if frontmatter was found.
+func extractFrontmatter(content string) (string, bool) {
+	content = strings.TrimLeft(content, "\ufeff") // handle BOM if present
+	content = strings.TrimSpace(content)
+	if !strings.HasPrefix(content, "---") {
+		return "", false
+	}
+	parts := strings.SplitN(content, "---", 3)
+	if len(parts) < 3 {
+		return "", false
+	}
+	fm := strings.TrimSpace(parts[1])
+	if fm == "" {
+		return "", false
+	}
+	return fm, true
+}
+
+func slugify(s string) string {
+	// 1. Normalize (NFD splits accents)
+	t := norm.NFD.String(s)
+
+	// 2. Keep only ASCII letters/digits, convert spaces to hyphens
+	var b strings.Builder
+	b.Grow(len(t))
+
+	prevHyphen := false
+
+	for _, r := range t {
+		switch {
+		case unicode.IsLetter(r) && r <= unicode.MaxASCII:
+			b.WriteRune(unicode.ToLower(r))
+			prevHyphen = false
+
+		case unicode.IsDigit(r):
+			b.WriteRune(r)
+			prevHyphen = false
+
+		case r == ' ' || r == '-' || r == '_':
+			if !prevHyphen {
+				b.WriteRune('-')
+				prevHyphen = true
+			}
+
+		default:
+			// drop everything else
+		}
+	}
+
+	slug := strings.Trim(b.String(), "-")
+	slug = strings.TrimSuffix(slug, "md")
+
+	return slug
 }
