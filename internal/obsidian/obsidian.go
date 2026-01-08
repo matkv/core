@@ -131,3 +131,11 @@ func ensureVaultPathExists(vaultPath string) error {
 	}
 	return nil
 }
+
+func FixBookReviewCover(reviewFile string) error {
+	fmt.Printf("Downloading book cover for review file: %s\n", reviewFile)
+	// TODO download cover from cover property in the markdown file
+	// store it in the appropriate location in the Obsidian vault
+	// overwrite the cover property with the local path
+	return nil
+}

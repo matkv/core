@@ -58,6 +58,7 @@ func init() {
 	addCommand(browserCmd, config.Desktop, config.Laptop)
 	addCommand(pickCmd, config.Desktop, config.Laptop, config.WSL)
 	addCommand(websiteCmd, config.Desktop, config.Laptop, config.WSL)
+	addCommand(obsidianCmd, config.Desktop, config.Laptop)
 }
 
 func addCommand(command *cobra.Command, devices ...config.Device) {
