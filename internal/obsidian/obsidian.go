@@ -169,7 +169,105 @@ func FixBookReviewCover(reviewFile string) error {
 	fmt.Printf("Book slug generated: %s\n", bookSlug)
 	downloadBookCover(coverURL, coversDir, bookSlug)
 
+	// replace cover URL in review file with local path
+	localCoverPath := filepath.Join("Covers", bookSlug+filepath.Ext(coverURL))
+	fmt.Printf("Replacing cover URL in review file with local path: %s\n", localCoverPath)
+	if err := replaceCoverURLInReviewFile(reviewFilePath, coverURL, localCoverPath); err != nil {
+		return err
+	}
+
 	return nil
+}
+
+func replaceCoverURLInReviewFile(reviewFilePath, oldURL, newPath string) error {
+	data, err := os.ReadFile(reviewFilePath)
+	if err != nil {
+		return fmt.Errorf("read review file: %w", err)
+	}
+
+	content := strings.TrimLeft(string(data), "\ufeff")
+	content = strings.TrimLeft(content, " \t\r\n")
+	if !strings.HasPrefix(content, "---") {
+		return fmt.Errorf("review file missing frontmatter: %s", reviewFilePath)
+	}
+
+	parts := strings.SplitN(content, "---", 3)
+	if len(parts) < 3 {
+		return fmt.Errorf("malformed frontmatter in file: %s", reviewFilePath)
+	}
+
+	frontmatter := strings.TrimSpace(parts[1])
+	body := parts[2]
+
+	updatedFrontmatter, err := updateCoverLine(frontmatter, oldURL, filepath.ToSlash(newPath))
+	if err != nil {
+		return err
+	}
+
+	var builder strings.Builder
+	builder.WriteString("---\n")
+	builder.WriteString(updatedFrontmatter)
+	builder.WriteString("\n---\n")
+	builder.WriteString(strings.TrimLeft(body, "\r\n"))
+
+	tmpFile, err := os.CreateTemp(filepath.Dir(reviewFilePath), "cover-rewrite-*.md")
+	if err != nil {
+		return fmt.Errorf("create temp file: %w", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	if _, err := tmpFile.WriteString(builder.String()); err != nil {
+		tmpFile.Close()
+		return fmt.Errorf("write temp file: %w", err)
+	}
+
+	if err := tmpFile.Close(); err != nil {
+		return fmt.Errorf("close temp file: %w", err)
+	}
+
+	if err := os.Rename(tmpFile.Name(), reviewFilePath); err != nil {
+		return fmt.Errorf("replace review file: %w", err)
+	}
+
+	return nil
+}
+
+func updateCoverLine(frontmatter string, oldURL string, newValue string) (string, error) {
+	lines := strings.Split(frontmatter, "\n")
+	replaced := false
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if !strings.HasPrefix(trimmed, "cover:") {
+			continue
+		}
+
+		currentValue := strings.TrimSpace(trimmed[len("cover:"):])
+		if oldURL != "" && currentValue != "" && strings.Trim(currentValue, "\"'") != strings.TrimSpace(oldURL) {
+			fmt.Printf("warning: cover value mismatch for frontmatter (have %s, expected %s)\n", currentValue, oldURL)
+		}
+
+		indentLen := len(line) - len(strings.TrimLeft(line, " \t"))
+		indent := line[:indentLen]
+		useDoubleQuotes := strings.HasPrefix(currentValue, "\"") && strings.HasSuffix(currentValue, "\"")
+		useSingleQuotes := strings.HasPrefix(currentValue, "'") && strings.HasSuffix(currentValue, "'")
+
+		switch {
+		case useDoubleQuotes:
+			lines[i] = fmt.Sprintf("%scover: \"%s\"", indent, newValue)
+		case useSingleQuotes:
+			lines[i] = fmt.Sprintf("%scover: '%s'", indent, newValue)
+		default:
+			lines[i] = fmt.Sprintf("%scover: %s", indent, newValue)
+		}
+		replaced = true
+		break
+	}
+
+	if !replaced {
+		lines = append(lines, fmt.Sprintf("cover: %s", newValue))
+	}
+
+	return strings.Join(lines, "\n"), nil
 }
 
 func downloadBookCover(coverURL, coversDir string, bookSlug string) {
