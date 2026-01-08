@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/matkv/core/internal/obsidian"
 	"github.com/spf13/cobra"
@@ -22,7 +23,8 @@ var obsidianFixCoverCmd = &cobra.Command{
 		if len(args) == 0 {
 			return fmt.Errorf("missing review file argument")
 		}
-		reviewFile := args[0]
+
+		reviewFile := strings.Join(args, " ")
 		fmt.Println("Fixing book review covers...")
 		return obsidian.FixBookReviewCover(reviewFile)
 	}}

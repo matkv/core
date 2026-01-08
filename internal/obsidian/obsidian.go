@@ -134,16 +134,67 @@ func ensureVaultPathExists(vaultPath string) error {
 
 func FixBookReviewCover(reviewFile string) error {
 	fmt.Printf("Downloading book cover for review file: %s\n", reviewFile)
+
+	vaultDir := config.C.Paths.ObsidianVault
+	if err := ensureVaultPathExists(vaultDir); err != nil {
+		return err
+	}
+
+	bookReviewsDir := filepath.Join(vaultDir, "Database", "Index", "Books")
+	reviewFilePath := filepath.Join(bookReviewsDir, reviewFile)
+	if err := ensureReviewFileExists(reviewFilePath); err != nil {
+		return err
+	}
+	fmt.Printf("Found review file at path: %s\n", reviewFilePath)
+
+	coversDir, err := ensureCoversDirectoryExists(bookReviewsDir)
+	if err != nil {
+		return err
+	}
+
+	var coverURL string
+	coverURL = getCoverURLFromReviewFile(reviewFilePath)
+	if coverURL == "" {
+		return fmt.Errorf("no cover URL found in review file: %s", reviewFilePath)
+	}
+
+	downloadBookCover(coverURL, coversDir)
+
+	clearcoverURLInReviewFile(reviewFilePath)
+
+	// read the review file
+	// parse frontmatter to get cover URL
+	// generate slug for book title + author to use as filename
 	// TODO download cover from cover property in the markdown file
 	// store it in the appropriate location in the Obsidian vault
 	// overwrite the cover property with the local path
-
 	// so workflow would be:
 	// create book review file using Obsidian web clipper
 	// web clipper gets the cover URL from goodreads
 	// this command downloads the cover to the vault
 	// updates the review file to point to the local cover image
-
 	// website command would then just use the local cover image when syncing
 	return nil
+}
+
+func ensureReviewFileExists(reviewFilePath string) error {
+	if _, err := os.Stat(reviewFilePath); os.IsNotExist(err) {
+		return fmt.Errorf("review file does not exist: %s", reviewFilePath)
+	}
+	return nil
+}
+
+func ensureCoversDirectoryExists(bookReviewsDir string) (string, error) {
+	coversDir := filepath.Join(bookReviewsDir, "Covers")
+	if _, err := os.Stat(coversDir); os.IsNotExist(err) {
+		fmt.Printf("Covers directory does not exist, creating: %s\n", coversDir)
+		if err := os.Mkdir(coversDir, os.ModePerm); err != nil {
+			return "", fmt.Errorf("failed to create covers directory: %w", err)
+		}
+	}
+	return coversDir, nil
+}
+
+func getCoverURLFromReviewFile(reviewFilePath string) string {
+	panic("unimplemented")
 }

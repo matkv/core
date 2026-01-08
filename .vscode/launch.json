@@ -11,8 +11,8 @@
       "mode": "debug",
       "program": "${workspaceFolder}",
       "cwd": "${workspaceFolder}",
-      "args": ["website", "scan"]
-    },
+        "args": ["obsidian", "cover", "./The Stand - Stephen King.md"]
+      },
     {
       "name": "Debug Svelte frontend",
       "type": "chrome",
