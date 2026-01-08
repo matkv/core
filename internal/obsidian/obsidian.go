@@ -137,5 +137,13 @@ func FixBookReviewCover(reviewFile string) error {
 	// TODO download cover from cover property in the markdown file
 	// store it in the appropriate location in the Obsidian vault
 	// overwrite the cover property with the local path
+
+	// so workflow would be:
+	// create book review file using Obsidian web clipper
+	// web clipper gets the cover URL from goodreads
+	// this command downloads the cover to the vault
+	// updates the review file to point to the local cover image
+
+	// website command would then just use the local cover image when syncing
 	return nil
 }
