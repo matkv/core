@@ -23,6 +23,15 @@ var browserCmd = &cobra.Command{
 	},
 }
 
+var twitchCmd = &cobra.Command{
+	Use:   "twitch <username>",
+	Short: "Open a Twitch stream and chat in popup windows",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return browser.OpenTwitchStream(args[0])
+	},
+}
+
 func init() {
 	browserCmd.Flags().BoolVarP(
 		&browserFileFlag,
@@ -30,4 +39,5 @@ func init() {
 		"f",
 		false,
 		"treat arguments as files containing URLs")
+	browserCmd.AddCommand(twitchCmd)
 }

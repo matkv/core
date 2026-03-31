@@ -3,6 +3,7 @@ package browser
 import (
 	"bufio"
 	"fmt"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -114,4 +115,59 @@ func readLinksFromFile(file *os.File) []string {
 	}
 
 	return urls
+}
+
+func OpenTwitchStream(username string) error {
+	if username == "" {
+		return fmt.Errorf("username cannot be empty")
+	}
+
+	streamURL := fmt.Sprintf(
+		"https://player.twitch.tv/?channel=%s&enableExtensions=true&muted=false&parent=twitch.tv&player=popout",
+		url.QueryEscape(username),
+	)
+	chatURL := fmt.Sprintf(
+		"https://www.twitch.tv/popout/%s/chat?popout=",
+		url.PathEscape(username),
+	)
+
+	htmlContent := fmt.Sprintf(`<!DOCTYPE html>
+<html>
+<head><title>Opening Twitch...</title></head>
+<body>
+<script>
+window.open('%s', 'twitch_stream', 'width=1280,height=720,toolbar=no,location=no,menubar=no,status=no,scrollbars=no,resizable=yes');
+window.open('%s', 'twitch_chat', 'width=360,height=720,toolbar=no,location=no,menubar=no,status=no,scrollbars=no,resizable=yes');
+window.close();
+</script>
+</body>
+</html>`, streamURL, chatURL)
+
+	launcherPath := filepath.Join(os.TempDir(), "core-twitch-launcher.html")
+	if err := os.WriteFile(launcherPath, []byte(htmlContent), 0600); err != nil {
+		return fmt.Errorf("failed to write twitch launcher: %v", err)
+	}
+
+	return openLocalFile(launcherPath)
+}
+
+func openLocalFile(path string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "linux":
+		cmd = "xdg-open"
+		args = []string{path}
+	case "windows":
+		cmd = "rundll32"
+		args = []string{"url.dll,FileProtocolHandler", path}
+	case "darwin":
+		cmd = "open"
+		args = []string{path}
+	default:
+		return nil
+	}
+
+	return exec.Command(cmd, args...).Start()
 }
