@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"github.com/matkv/core/internal/app"
+	"github.com/matkv/core/internal/browser"
 	"github.com/matkv/core/internal/config"
 	"github.com/spf13/cobra"
 )
@@ -27,7 +28,7 @@ var serveCmd = &cobra.Command{
 		// open browser to the server URL
 		if config.C.Device != config.WSL {
 			url := fmt.Sprintf("http://localhost:%d", port)
-			if err := OpenURL(url); err != nil {
+			if err := browser.OpenURL(url); err != nil {
 				fmt.Fprintf(os.Stderr, "failed to open browser: %v\n", err)
 			}
 		}
