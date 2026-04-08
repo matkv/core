@@ -30,7 +30,7 @@ var pushCmd = &cobra.Command{
 		// get Application based on the app name argument
 		appName := args[0]
 		application, exists := config.C.Paths.Dotfiles[appName]
-		if !exists {
+		if !exists { // TODO show error + list of valid app names
 			return cmd.Help()
 		}
 
