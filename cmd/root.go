@@ -43,6 +43,9 @@ func setupCommands() {
 		return
 	}
 	commandsRegistered = true
+
+	setupDotfilesSubCommands() // ugly, works for now
+
 	currentDevice := config.C.Device
 	for _, c := range commands {
 		if isDeviceAllowed(currentDevice, c.allowedDevices) {
@@ -59,6 +62,7 @@ func init() {
 	addCommand(pickCmd, config.Desktop, config.Laptop, config.WSL)
 	addCommand(websiteCmd, config.Desktop, config.Laptop, config.WSL)
 	addCommand(obsidianCmd, config.Desktop, config.Laptop)
+	addCommand(dotfilesCmd, config.Desktop)
 }
 
 func addCommand(command *cobra.Command, devices ...config.Device) {

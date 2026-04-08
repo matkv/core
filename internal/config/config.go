@@ -13,10 +13,16 @@ import (
 
 type Config struct {
 	Paths struct {
-		ObsidianVault string `mapstructure:"obsidianvault"`
-		Website       string `mapstructure:"website"`
+		ObsidianVault string                 `mapstructure:"obsidianvault"`
+		Website       string                 `mapstructure:"website"`
+		Dotfiles      map[string]Application `mapstructure:"dotfiles"`
 	} `mapstructure:"paths"`
 	Device Device `mapstructure:"device"`
+}
+
+type Application struct {
+	Source string `mapstructure:"source"` // path in the dotfiles repository
+	Target string `mapstructure:"target"` // path for the actual config dir of the application
 }
 
 var C Config
