@@ -26,8 +26,8 @@ type Config struct {
 }
 
 type Application struct {
-	Source string `mapstructure:"source"` // relative path within the dotfiles repository
-	Target string `mapstructure:"target"` // path for the actual config dir of the application
+	Sources []string `mapstructure:"sources"` // relative paths within the dotfiles repository
+	Target  string   `mapstructure:"target"`  // path for the actual config dir of the application
 }
 
 var C Config
