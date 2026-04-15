@@ -13,7 +13,7 @@ import (
 func Push(appConfig config.Application) error {
 	repoPath := config.C.Paths.Dotfiles.Repo
 	for _, source := range appConfig.Sources {
-		src := filepath.Join(appConfig.Target, source)
+		src := filepath.Join(appConfig.Target, filepath.Base(source))
 		dst := filepath.Join(repoPath, source)
 
 		if err := copyFile(src, dst); err != nil {
@@ -28,7 +28,7 @@ func Pull(appConfig config.Application) error {
 	repoPath := config.C.Paths.Dotfiles.Repo
 	for _, source := range appConfig.Sources {
 		src := filepath.Join(repoPath, source)
-		dst := filepath.Join(appConfig.Target, source)
+		dst := filepath.Join(appConfig.Target, filepath.Base(source))
 
 		if err := copyFile(src, dst); err != nil {
 			return fmt.Errorf("pull %s: %w", source, err)
