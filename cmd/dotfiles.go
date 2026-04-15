@@ -11,14 +11,6 @@ var dotfilesCmd = &cobra.Command{
 	Short: "Sync dotfiles to/from a git repository on Windows",
 }
 
-// generate parent command for each application, e.g. "core dotfiles neovim"
-func generateDotfilesSubcommand(appName string, appConfig config.Application) *cobra.Command {
-	return &cobra.Command{
-		Use:   appName,
-		Short: "Manage " + appName + " dotfiles",
-	}
-}
-
 var pullFromGithubCmd = &cobra.Command{
 	Use:   "pull-github",
 	Short: "Pull updates from the GitHub repository to local repo",
@@ -27,48 +19,35 @@ var pullFromGithubCmd = &cobra.Command{
 	},
 }
 
-var pushCmd = &cobra.Command{
-	Use:   "push <app>",
-	Short: "Push local config changes to the dotfiles repository",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 1 {
-			return cmd.Help()
-		}
+// generate parent command for each application, e.g. "core dotfiles neovim"
+func generateDotfilesSubcommand(appName string, appConfig config.Application) *cobra.Command {
+	appCmd := &cobra.Command{
+		Use:   appName,
+		Short: "Manage " + appName + " dotfiles",
+	}
 
-		// get Application based on the app name argument
-		appName := args[0]
-		application, exists := config.C.Paths.Dotfiles.Apps[appName]
-		if !exists { // TODO show error + list of valid app names
-			return cmd.Help()
-		}
+	appCmd.AddCommand(&cobra.Command{
+		Use:   "push",
+		Short: "Push local config changes to the dotfiles repository",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return dotfiles.Push(appConfig)
+		},
+	})
 
-		return dotfiles.Push(application)
-	},
-}
+	appCmd.AddCommand(&cobra.Command{
+		Use:   "pull",
+		Short: "Pull config changes from the dotfiles repository to local",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return dotfiles.Pull(appConfig)
+		},
+	})
 
-var pullCmd = &cobra.Command{
-	Use:   "pull <app>",
-	Short: "Pull config changes from the dotfiles repository to local",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 1 {
-			return cmd.Help()
-		}
-		// get Application based on the app name argument
-		appName := args[0]
-		application, exists := config.C.Paths.Dotfiles.Apps[appName]
-		if !exists {
-			return cmd.Help()
-		}
-		return dotfiles.Pull(application)
-	},
+	return appCmd
 }
 
 func setupDotfilesSubCommands() {
 	dotfilesCmd.AddCommand(pullFromGithubCmd)
 	for appName, appConfig := range config.C.Paths.Dotfiles.Apps {
-		appCmd := generateDotfilesSubcommand(appName, appConfig)
-		appCmd.AddCommand(pushCmd)
-		appCmd.AddCommand(pullCmd)
-		dotfilesCmd.AddCommand(appCmd)
+		dotfilesCmd.AddCommand(generateDotfilesSubcommand(appName, appConfig))
 	}
 }
