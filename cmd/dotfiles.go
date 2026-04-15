@@ -21,18 +21,11 @@ func generateDotfilesSubcommand(appName string, appConfig config.Application) *c
 
 var pullFromGithubCmd = &cobra.Command{
 	Use:   "pull-github",
-	Short: "Pull updates from the GitHub repository to local repo)",
+	Short: "Pull updates from the GitHub repository to local repo",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 1 {
-			return cmd.Help()
-		}
-
-		// TODO adapt config - store the path to the dotfiles repo
-		// and then only the relative path of each app IN the dotfiles repo
-		// example just (.config/nvim) for the neovim config
-
-		return nil
-	}}
+		return dotfiles.PullFromGithub(config.C.Paths.Dotfiles.Repo)
+	},
+}
 
 var pushCmd = &cobra.Command{
 	Use:   "push <app>",
@@ -71,6 +64,7 @@ var pullCmd = &cobra.Command{
 }
 
 func setupDotfilesSubCommands() {
+	dotfilesCmd.AddCommand(pullFromGithubCmd)
 	for appName, appConfig := range config.C.Paths.Dotfiles.Apps {
 		appCmd := generateDotfilesSubcommand(appName, appConfig)
 		appCmd.AddCommand(pushCmd)
