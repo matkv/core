@@ -44,7 +44,7 @@ var pushCmd = &cobra.Command{
 
 		// get Application based on the app name argument
 		appName := args[0]
-		application, exists := config.C.Paths.Dotfiles[appName]
+		application, exists := config.C.Paths.Dotfiles.Apps[appName]
 		if !exists { // TODO show error + list of valid app names
 			return cmd.Help()
 		}
@@ -62,7 +62,7 @@ var pullCmd = &cobra.Command{
 		}
 		// get Application based on the app name argument
 		appName := args[0]
-		application, exists := config.C.Paths.Dotfiles[appName]
+		application, exists := config.C.Paths.Dotfiles.Apps[appName]
 		if !exists {
 			return cmd.Help()
 		}
@@ -71,7 +71,7 @@ var pullCmd = &cobra.Command{
 }
 
 func setupDotfilesSubCommands() {
-	for appName, appConfig := range config.C.Paths.Dotfiles {
+	for appName, appConfig := range config.C.Paths.Dotfiles.Apps {
 		appCmd := generateDotfilesSubcommand(appName, appConfig)
 		appCmd.AddCommand(pushCmd)
 		appCmd.AddCommand(pullCmd)
