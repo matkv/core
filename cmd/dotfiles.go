@@ -12,10 +12,43 @@ var dotfilesCmd = &cobra.Command{
 }
 
 var pullFromGithubCmd = &cobra.Command{
-	Use:   "pull-github",
+	Use:   "pull",
 	Short: "Pull updates from the GitHub repository to local repo",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return dotfiles.PullFromGithub(config.C.Paths.Dotfiles.Repo)
+	},
+}
+
+var statusCmd = &cobra.Command{
+	Use:   "status",
+	Short: "Show git status of the dotfiles repository",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return dotfiles.Status(config.C.Paths.Dotfiles.Repo)
+	},
+}
+
+var pushToGithubCmd = &cobra.Command{
+	Use:   "push",
+	Short: "Push local dotfiles repository commits to GitHub",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return dotfiles.PushToGithub(config.C.Paths.Dotfiles.Repo)
+	},
+}
+
+var diffCmd = &cobra.Command{
+	Use:   "diff",
+	Short: "Show git diff of the dotfiles repository",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return dotfiles.Diff(config.C.Paths.Dotfiles.Repo)
+	},
+}
+
+var commitCmd = &cobra.Command{
+	Use:   "commit <message>",
+	Short: "Stage all changes and commit with the given message",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return dotfiles.Commit(config.C.Paths.Dotfiles.Repo, args[0])
 	},
 }
 
@@ -47,6 +80,10 @@ func generateDotfilesSubcommand(appName string, appConfig config.Application) *c
 
 func setupDotfilesSubCommands() {
 	dotfilesCmd.AddCommand(pullFromGithubCmd)
+	dotfilesCmd.AddCommand(statusCmd)
+	dotfilesCmd.AddCommand(pushToGithubCmd)
+	dotfilesCmd.AddCommand(diffCmd)
+	dotfilesCmd.AddCommand(commitCmd)
 	for appName, appConfig := range config.C.Paths.Dotfiles.Apps {
 		dotfilesCmd.AddCommand(generateDotfilesSubcommand(appName, appConfig))
 	}

@@ -66,3 +66,43 @@ func PullFromGithub(repoPath string) error {
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
+
+func Status(repoPath string) error {
+	cmd := exec.Command("git", "status")
+	cmd.Dir = repoPath
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func PushToGithub(repoPath string) error {
+	cmd := exec.Command("git", "push")
+	cmd.Dir = repoPath
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func Diff(repoPath string) error {
+	cmd := exec.Command("git", "diff")
+	cmd.Dir = repoPath
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func Commit(repoPath, message string) error {
+	add := exec.Command("git", "add", "-A")
+	add.Dir = repoPath
+	add.Stdout = os.Stdout
+	add.Stderr = os.Stderr
+	if err := add.Run(); err != nil {
+		return err
+	}
+
+	commit := exec.Command("git", "commit", "-m", message)
+	commit.Dir = repoPath
+	commit.Stdout = os.Stdout
+	commit.Stderr = os.Stderr
+	return commit.Run()
+}
