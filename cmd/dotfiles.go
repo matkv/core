@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"fmt"
+	"os/exec"
+
 	"github.com/matkv/core/internal/config"
 	"github.com/matkv/core/internal/dotfiles"
 	"github.com/spf13/cobra"
@@ -52,6 +55,16 @@ var commitCmd = &cobra.Command{
 	},
 }
 
+var dotfilesCdCmd = &cobra.Command{
+	Use:   "cd",
+	Short: "Open the dotfiles repository in Explorer",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		repoPath := config.C.Paths.Dotfiles.Repo
+		fmt.Println(repoPath)
+		return exec.Command("explorer.exe", repoPath).Start()
+	},
+}
+
 // generate parent command for each application, e.g. "core dotfiles neovim"
 func generateDotfilesSubcommand(appName string, appConfig config.Application) *cobra.Command {
 	appCmd := &cobra.Command{
@@ -84,6 +97,7 @@ func setupDotfilesSubCommands() {
 	dotfilesCmd.AddCommand(pushToGithubCmd)
 	dotfilesCmd.AddCommand(diffCmd)
 	dotfilesCmd.AddCommand(commitCmd)
+	dotfilesCmd.AddCommand(dotfilesCdCmd)
 	for appName, appConfig := range config.C.Paths.Dotfiles.Apps {
 		dotfilesCmd.AddCommand(generateDotfilesSubcommand(appName, appConfig))
 	}
