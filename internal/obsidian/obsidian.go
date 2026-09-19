@@ -1,12 +1,14 @@
 package obsidian
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/matkv/core/internal/config"
@@ -14,6 +16,8 @@ import (
 	"go.yaml.in/yaml/v3"
 	"golang.org/x/text/unicode/norm"
 )
+
+var httpClient = &http.Client{Timeout: 30 * time.Second}
 
 func LoadStandaloneContent(pageType types.Content) (types.Content, error) {
 	vaultPath := config.C.Paths.ObsidianVault
@@ -137,25 +141,29 @@ func ensureVaultPathExists(vaultPath string) error {
 	return nil
 }
 
-func FixBookReviewCover(reviewFile string) error {
-	fmt.Printf("Downloading book cover for review file: %s\n", reviewFile)
+// Review folders relative to the vault root.
+var (
+	BookReviewsDir  = filepath.Join("Database", "Index", "Books")
+	MovieReviewsDir = filepath.Join("Database", "Index", "Movies & TV Shows")
+)
+
+// ErrCoverAlreadyLocal is returned when a review's cover already points to a local file.
+var ErrCoverAlreadyLocal = errors.New("cover is already a local file")
+
+func FixReviewCover(reviewsSubDir string, reviewFile string) error {
+	fmt.Printf("Downloading cover for review file: %s\n", reviewFile)
 
 	vaultDir := config.C.Paths.ObsidianVault
 	if err := ensureVaultPathExists(vaultDir); err != nil {
 		return err
 	}
 
-	bookReviewsDir := filepath.Join(vaultDir, "Database", "Index", "Books")
-	reviewFilePath := filepath.Join(bookReviewsDir, reviewFile)
+	reviewsDir := filepath.Join(vaultDir, reviewsSubDir)
+	reviewFilePath := filepath.Join(reviewsDir, reviewFile)
 	if err := ensureReviewFileExists(reviewFilePath); err != nil {
 		return err
 	}
 	fmt.Printf("Found review file at path: %s\n", reviewFilePath)
-
-	coversDir, err := ensureCoversDirectoryExists(bookReviewsDir)
-	if err != nil {
-		return err
-	}
 
 	var coverURL string
 	coverURL = getCoverURLFromReviewFile(reviewFilePath)
@@ -163,20 +171,87 @@ func FixBookReviewCover(reviewFile string) error {
 		return fmt.Errorf("no cover URL found in review file: %s", reviewFilePath)
 	}
 
+	if !isRemoteURL(coverURL) {
+		return ErrCoverAlreadyLocal
+	}
+
 	fmt.Printf("Cover URL found: %s\n", coverURL)
 
-	var bookSlug = slugify(reviewFile)
-	fmt.Printf("Book slug generated: %s\n", bookSlug)
-	downloadBookCover(coverURL, coversDir, bookSlug)
+	coversDir, err := ensureCoversDirectoryExists(reviewsDir)
+	if err != nil {
+		return err
+	}
+
+	var slug = slugify(reviewFile)
+	fmt.Printf("Slug generated: %s\n", slug)
+	coverFileName, err := downloadCover(coverURL, coversDir, slug)
+	if err != nil {
+		return err
+	}
 
 	// replace cover URL in review file with local path
-	localCoverPath := filepath.Join("Covers", bookSlug+filepath.Ext(coverURL))
+	localCoverPath := filepath.Join("Covers", coverFileName)
 	fmt.Printf("Replacing cover URL in review file with local path: %s\n", localCoverPath)
 	if err := replaceCoverURLInReviewFile(reviewFilePath, coverURL, localCoverPath); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// Pause between downloads in batch mode, to be nice to the image server.
+var coverDownloadDelay = 300 * time.Millisecond
+
+type CoverFailure struct {
+	File string
+	Err  error
+}
+
+// CoverSummary is the result of FixAllReviewCovers.
+type CoverSummary struct {
+	Downloaded []string
+	Skipped    []string // cover already local or missing
+	Failed     []CoverFailure
+}
+
+func FixAllReviewCovers(reviewsSubDir string) (CoverSummary, error) {
+	var summary CoverSummary
+
+	vaultDir := config.C.Paths.ObsidianVault
+	if err := ensureVaultPathExists(vaultDir); err != nil {
+		return summary, err
+	}
+
+	reviewsDir := filepath.Join(vaultDir, reviewsSubDir)
+	entries, err := os.ReadDir(reviewsDir)
+	if err != nil {
+		return summary, fmt.Errorf("read reviews directory: %w", err)
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
+			continue
+		}
+
+		coverURL := getCoverURLFromReviewFile(filepath.Join(reviewsDir, entry.Name()))
+		if !isRemoteURL(coverURL) {
+			summary.Skipped = append(summary.Skipped, entry.Name())
+			continue
+		}
+
+		if err := FixReviewCover(reviewsSubDir, entry.Name()); err != nil {
+			summary.Failed = append(summary.Failed, CoverFailure{File: entry.Name(), Err: err})
+		} else {
+			summary.Downloaded = append(summary.Downloaded, entry.Name())
+		}
+		time.Sleep(coverDownloadDelay)
+	}
+
+	return summary, nil
+}
+
+func isRemoteURL(s string) bool {
+	return strings.HasPrefix(s, "http://") || strings.HasPrefix(s, "https://")
 }
 
 func replaceCoverURLInReviewFile(reviewFilePath, oldURL, newPath string) error {
@@ -270,53 +345,49 @@ func updateCoverLine(frontmatter string, oldURL string, newValue string) (string
 	return strings.Join(lines, "\n"), nil
 }
 
-func downloadBookCover(coverURL, coversDir string, bookSlug string) {
-	fmt.Printf("Downloading cover from URL: %s to directory: %s\n", coverURL, coversDir)
-
-	// Determine the file extension from the URL
-	var fileExt string
-	if strings.HasSuffix(coverURL, ".jpg") || strings.HasSuffix(coverURL, ".jpeg") {
-		fileExt = ".jpg"
-	} else if strings.HasSuffix(coverURL, ".png") {
+// downloadCover downloads the cover into coversDir and returns the saved file name.
+func downloadCover(coverURL, coversDir, slug string) (string, error) {
+	fileExt := ".jpg" // default to jpg
+	if strings.HasSuffix(coverURL, ".png") {
 		fileExt = ".png"
-	} else {
-		fileExt = ".jpg" // default to jpg
 	}
 
-	coverFilePath := filepath.Join(coversDir, bookSlug+fileExt)
-	fmt.Printf("Saving cover to file: %s\n", coverFilePath)
+	fileName := slug + fileExt
+	coverFilePath := filepath.Join(coversDir, fileName)
+	fmt.Printf("Downloading cover from URL: %s to: %s\n", coverURL, coverFilePath)
 
-	// Download the cover image
-	err := downloadFile(coverURL, coverFilePath)
-	if err != nil {
-		fmt.Printf("Failed to download cover image: %v\n", err)
-	} else {
-		fmt.Printf("Successfully downloaded cover image to: %s\n", coverFilePath)
+	if err := downloadFile(coverURL, coverFilePath); err != nil {
+		return "", fmt.Errorf("download cover: %w", err)
 	}
+	return fileName, nil
 }
 
+// downloadFile writes to a temp file first so a failed download never leaves a broken file behind.
 func downloadFile(url string, filePath string) error {
-	out, err := os.Create(filePath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	// Get the data
-	resp, err := http.Get(url)
+	resp, err := httpClient.Get(url)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
-	// Check server response
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("bad status: %s", resp.Status)
 	}
 
-	// Write the body to file
-	_, err = io.Copy(out, resp.Body)
-	return err
+	tmp, err := os.CreateTemp(filepath.Dir(filePath), "cover-download-*")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(tmp.Name()) // cleans up on failure; no-op after a successful rename
+
+	if _, err := io.Copy(tmp, resp.Body); err != nil {
+		tmp.Close()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	return os.Rename(tmp.Name(), filePath)
 }
 
 func ensureReviewFileExists(reviewFilePath string) error {
